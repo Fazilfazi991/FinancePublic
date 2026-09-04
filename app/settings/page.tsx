@@ -7,7 +7,7 @@ import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 
 export default function SettingsPage() {
-  const { settings, setSettings, rates } = useFinanceStore();
+  const { settings, setSettings, rates, demoMode, removeDemoData, resetDemoData } = useFinanceStore();
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -18,13 +18,6 @@ export default function SettingsPage() {
 
   const handleUpdate = (key: string, value: any) => {
     setSettings({ [key]: value });
-  };
-
-  const handleClearData = () => {
-    if (confirm("Are you sure you want to clear all data? This cannot be undone.")) {
-      localStorage.removeItem('financeOS_data');
-      window.location.reload();
-    }
   };
 
   const handleExportData = () => {
@@ -42,7 +35,7 @@ export default function SettingsPage() {
     <div className="space-y-8 max-w-3xl mx-auto">
       <div>
         <h1 className="text-3xl lg:text-4xl font-bold tracking-tight">Settings</h1>
-        <p className="text-muted-foreground mt-1">Personalize your financeOS experience.</p>
+        <p className="text-muted-foreground mt-1">Personalize your Finance experience.</p>
       </div>
 
       <div className="space-y-6">
@@ -112,13 +105,9 @@ export default function SettingsPage() {
             >
               Export JSON
             </button>
-            <button 
-              onClick={handleClearData}
-              className="flex-1 py-4 bg-destructive/10 text-destructive rounded-2xl font-bold hover:bg-destructive/20 transition-all"
-            >
-              Clear All Data
-            </button>
+            {demoMode&&<><button onClick={resetDemoData} className="flex-1 py-4 bg-secondary text-foreground rounded-2xl font-bold hover:bg-secondary/80 transition-all">Reset sample data</button><button onClick={()=>{if(confirm('Remove only the fictional sample records?'))removeDemoData()}} className="flex-1 py-4 bg-destructive/10 text-destructive rounded-2xl font-bold hover:bg-destructive/20 transition-all">Remove sample data</button></>}
           </div>
+          {demoMode&&<p className="mt-3 text-sm text-muted-foreground">Sample data is stored only in this browser and is identified by demo-prefixed records.</p>}
         </div>
       </div>
     </div>

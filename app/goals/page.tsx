@@ -104,7 +104,7 @@ function InlineEdit({ value, onSave, type = 'text', className, label, prefix }: 
 }
 
 export default function GoalsPage() {
-  const { goals, updateGoal, deleteGoal } = useFinanceStore();
+  const { goals, updateGoal, deleteGoal, settings } = useFinanceStore();
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -278,7 +278,7 @@ export default function GoalsPage() {
                 </div>
                 {dailyTarget && (
                   <div className="text-[10px] text-muted-foreground font-medium italic">
-                    {formatCurrency(dailyTarget, 'INR')} / day needed to hit target
+                    {formatCurrency(dailyTarget, settings.currency)} / day needed to hit target
                   </div>
                 )}
               </div>
@@ -326,14 +326,14 @@ export default function GoalsPage() {
                     value={isMilestone ? (goal.manualProgress || 0) : goal.saved}
                     onSave={(val) => handleUpdate(goal.id, isMilestone ? { manualProgress: val } : { saved: val })}
                     className="text-lg font-bold tabular"
-                    prefix={isMilestone ? "" : "₹"}
+                    prefix={isMilestone ? "" : settings.currency === 'USD' ? '$' : settings.currency === 'AED' ? 'AED ' : '₹'}
                   />
                 </div>
                 {!isMilestone && (
                   <div className="text-right space-y-2">
                     <div className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Target</div>
                     <div className="text-lg font-bold tabular text-muted-foreground">
-                      {formatCurrency(goal.target, 'INR')}
+                      {formatCurrency(goal.target, settings.currency)}
                     </div>
                   </div>
                 )}

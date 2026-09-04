@@ -6,17 +6,10 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 export function formatCurrency(amount: number, currency: string = 'INR') {
-  if (currency === 'INR') {
-    return new Intl.NumberFormat('en-IN', {
-      style: 'currency',
-      currency: 'INR',
-      maximumFractionDigits: 0,
-    }).format(amount);
-  }
-  return new Intl.NumberFormat('en-AE', {
+  return new Intl.NumberFormat(currency === 'INR' ? 'en-IN' : undefined, {
     style: 'currency',
-    currency: 'AED',
-    maximumFractionDigits: 0,
+    currency,
+    maximumFractionDigits: currency === 'USD' ? 2 : 0,
   }).format(amount);
 }
 

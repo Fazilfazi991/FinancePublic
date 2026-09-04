@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useFinanceStore } from "@/lib/store";
+import { clearDemoWorkspace, readDemoWorkspace } from "@/lib/demo-data";
 
 export function ClientProvider({ children }: { children: React.ReactNode }) {
   const [mounted, setMounted] = useState(false);
@@ -25,7 +26,17 @@ export function ClientProvider({ children }: { children: React.ReactNode }) {
           fetch('/api/settings').then(r => r.json()),
         ]);
 
-        hydrate({ debts, accounts, transactions, incomes, goals, expenses,
+        const hasRealData = [debts, accounts, transactions, incomes, goals, expenses].some(items => Array.isArray(items) && items.length);
+        const storedDemo = readDemoWorkspace();
+        if (storedDemo && !hasRealData) {
+          hydrate({ ...storedDemo.workspace, demoMode: true,
+            settings: { ...useFinanceStore.getState().settings, ...settings, currency: 'USD',
+              ...(savedTheme && ['system', 'light', 'dark'].includes(savedTheme) ? { theme: savedTheme as 'system' | 'light' | 'dark' } : {}) } });
+          setMounted(true);
+          return;
+        }
+        if (storedDemo && hasRealData) clearDemoWorkspace();
+        hydrate({ debts, accounts, transactions, incomes, goals, expenses, demoMode: false,
           settings: { ...useFinanceStore.getState().settings, ...settings,
             ...(savedTheme && ['system', 'light', 'dark'].includes(savedTheme) ? { theme: savedTheme as 'system' | 'light' | 'dark' } : {}) } });
       } catch (error) {

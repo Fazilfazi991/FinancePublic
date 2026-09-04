@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { clearDemoWorkspace, createDemoWorkspace, isDemoId, saveDemoWorkspace } from '@/lib/demo-data';
 
 export interface Debt {
   id: string;
@@ -100,6 +101,7 @@ interface FinanceState {
   incomes: Income[];
   projects: Project[];
   loaded: boolean;
+  demoMode: boolean;
   rates: {
     base: string;
     rates: Record<string, number>;
@@ -118,6 +120,9 @@ interface FinanceState {
 
   // Hydrate from API
   hydrate: (data: Partial<FinanceState>) => void;
+  loadDemoData: () => boolean;
+  removeDemoData: () => void;
+  resetDemoData: () => void;
 
   // Setters (local state only — used during hydrate)
   setDebts: (debts: Debt[]) => void;
@@ -176,6 +181,7 @@ export const useFinanceStore = create<FinanceState>()(
     incomes: [],
     projects: [],
     loaded: false,
+    demoMode: false,
     rates: { base: 'USD', rates: { INR: 83.5, AED: 3.67, EUR: 0.92, USD: 1 }, updated: 0 },
     settings: {
       currency: 'INR',
@@ -189,6 +195,41 @@ export const useFinanceStore = create<FinanceState>()(
     },
 
     hydrate: (data) => set({ ...data, loaded: true }),
+
+    loadDemoData: () => {
+      const state = get();
+      const isEmpty = !state.accounts.length && !state.transactions.length && !state.debts.length && !state.goals.length && !state.expenses.length && !state.incomes.length && !state.projects.length;
+      if (!isEmpty) return false;
+      const workspace = createDemoWorkspace();
+      saveDemoWorkspace(workspace, state.settings.currency);
+      set({ ...workspace, demoMode: true, settings: { ...state.settings, currency: 'USD' } });
+      return true;
+    },
+    removeDemoData: () => {
+      const state = get();
+      const stored = typeof window !== 'undefined' ? localStorage.getItem('finance-demo-workspace-v1') : null;
+      let previousCurrency = state.settings.currency;
+      try { previousCurrency = stored ? JSON.parse(stored).previousCurrency || previousCurrency : previousCurrency; } catch {}
+      clearDemoWorkspace();
+      set({
+        accounts: state.accounts.filter(item => !isDemoId(item.id)),
+        transactions: state.transactions.filter(item => !isDemoId(item.id)),
+        debts: state.debts.filter(item => !isDemoId(item.id)),
+        goals: state.goals.filter(item => !isDemoId(item.id)),
+        expenses: state.expenses.filter(item => !isDemoId(item.id)),
+        incomes: state.incomes.filter(item => !isDemoId(item.id)),
+        demoMode: false,
+        settings: { ...state.settings, currency: previousCurrency },
+      });
+    },
+    resetDemoData: () => {
+      const state = get();
+      if (!state.demoMode) return;
+      const workspace = createDemoWorkspace();
+      const previousCurrency = (() => { try { return JSON.parse(localStorage.getItem('finance-demo-workspace-v1') || '{}').previousCurrency || 'INR'; } catch { return 'INR'; } })();
+      saveDemoWorkspace(workspace, previousCurrency);
+      set({ ...workspace, demoMode: true, settings: { ...state.settings, currency: 'USD' } });
+    },
 
     setDebts: (debts) => set({ debts }),
     setIncomes: (incomes) => set({ incomes }),
@@ -206,7 +247,7 @@ export const useFinanceStore = create<FinanceState>()(
     },
     deleteTransaction: (id) => {
       set((state) => ({ transactions: state.transactions.filter(t => t.id !== id) }));
-      api.del(`/api/transactions/${id}`);
+      if (!isDemoId(id)) api.del(`/api/transactions/${id}`);
     },
     updateTransaction: (id, updatedTxn) => {
       set((state) => ({ transactions: state.transactions.map(t => t.id === id ? { ...t, ...updatedTxn } : t) }));
@@ -219,12 +260,12 @@ export const useFinanceStore = create<FinanceState>()(
     },
     deleteAccount: (id) => {
       set((state) => ({ accounts: state.accounts.filter(a => a.id !== id) }));
-      api.del(`/api/accounts/${id}`);
+      if (!isDemoId(id)) api.del(`/api/accounts/${id}`);
     },
     updateAccount: (id, updatedAcc) => {
       const full = get().accounts.find(a => a.id === id);
       set((state) => ({ accounts: state.accounts.map(a => a.id === id ? { ...a, ...updatedAcc } : a) }));
-      if (full) api.put(`/api/accounts/${id}`, { ...full, ...updatedAcc });
+      if (full && !isDemoId(id)) api.put(`/api/accounts/${id}`, { ...full, ...updatedAcc });
     },
 
     // Debts
@@ -234,12 +275,12 @@ export const useFinanceStore = create<FinanceState>()(
     },
     deleteDebt: (id) => {
       set((state) => ({ debts: state.debts.filter(d => d.id !== id) }));
-      api.del(`/api/debts/${id}`);
+      if (!isDemoId(id)) api.del(`/api/debts/${id}`);
     },
     updateDebt: (id, updatedDebt) => {
       const full = get().debts.find(d => d.id === id);
       set((state) => ({ debts: state.debts.map(d => d.id === id ? { ...d, ...updatedDebt } : d) }));
-      if (full) api.put(`/api/debts/${id}`, { ...full, ...updatedDebt });
+      if (full && !isDemoId(id)) api.put(`/api/debts/${id}`, { ...full, ...updatedDebt });
     },
 
     // Goals
@@ -249,12 +290,12 @@ export const useFinanceStore = create<FinanceState>()(
     },
     deleteGoal: (id) => {
       set((state) => ({ goals: state.goals.filter(g => g.id !== id) }));
-      api.del(`/api/goals/${id}`);
+      if (!isDemoId(id)) api.del(`/api/goals/${id}`);
     },
     updateGoal: (id, updatedGoal) => {
       const full = get().goals.find(g => g.id === id);
       set((state) => ({ goals: state.goals.map(g => g.id === id ? { ...g, ...updatedGoal } : g) }));
-      if (full) api.put(`/api/goals/${id}`, { ...full, ...updatedGoal });
+      if (full && !isDemoId(id)) api.put(`/api/goals/${id}`, { ...full, ...updatedGoal });
     },
 
     // Incomes
@@ -264,12 +305,12 @@ export const useFinanceStore = create<FinanceState>()(
     },
     deleteIncome: (id) => {
       set((state) => ({ incomes: state.incomes.filter(i => i.id !== id) }));
-      api.del(`/api/incomes/${id}`);
+      if (!isDemoId(id)) api.del(`/api/incomes/${id}`);
     },
     updateIncome: (id, updatedIncome) => {
       const full = get().incomes.find(i => i.id === id);
       set((state) => ({ incomes: state.incomes.map(i => i.id === id ? { ...i, ...updatedIncome } : i) }));
-      if (full) api.put(`/api/incomes/${id}`, { ...full, ...updatedIncome });
+      if (full && !isDemoId(id)) api.put(`/api/incomes/${id}`, { ...full, ...updatedIncome });
     },
 
     // Projects (local-only for now)

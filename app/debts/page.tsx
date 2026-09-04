@@ -130,13 +130,14 @@ export default function DebtsPage() {
   });
 
   const totalDebt = debts.reduce((sum, d) => sum + Number(d.balance), 0);
+  const currencyPrefix = settings.currency === 'USD' ? '$' : settings.currency === 'AED' ? 'AED ' : '₹';
 
   return (
     <div className="space-y-8 pb-20">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <h1 className="text-4xl font-bold tracking-tight">Debt Command Center</h1>
-          <p className="text-muted-foreground mt-1">₹{totalDebt.toLocaleString('en-IN')} to go. You&apos;ve got this.</p>
+          <p className="text-muted-foreground mt-1">{formatCurrency(totalDebt, settings.currency)} to go. You&apos;ve got this.</p>
         </div>
         <AddDebtDialog />
       </div>
@@ -183,7 +184,7 @@ export default function DebtsPage() {
                         value={debt.balance}
                         onSave={(val) => handleUpdate(debt.id, { balance: val, total: Math.max(debt.total, val) })}
                         className="text-2xl font-bold tabular"
-                        prefix="₹"
+                        prefix={currencyPrefix}
                       />
                     </div>
                   </div>
@@ -241,7 +242,7 @@ export default function DebtsPage() {
                       {debt.name}
                     </span>
                     <span className="text-[10px] font-bold tabular text-muted-foreground">
-                      {formatCurrency(debt.balance, 'INR')}
+                      {formatCurrency(debt.balance, settings.currency)}
                     </span>
                   </div>
                   {i === 0 && <span className="text-[9px] font-bold text-primary uppercase tracking-tighter shrink-0">Start Here</span>}
@@ -256,10 +257,10 @@ export default function DebtsPage() {
             </h3>
             <div className="space-y-4 text-sm text-muted-foreground leading-relaxed">
               <p>
-                At your current monthly recurring expenses of <span className="text-foreground font-bold">{formatCurrency(27500, 'INR')}</span>, every extra rupee earned accelerates your freedom.
+                Prioritize high-interest balances while maintaining every minimum payment.
               </p>
               <p className="text-xs">
-                To be debt-free in <strong>24 months</strong>, you need to earn <span className="text-foreground font-bold">₹{Math.round((totalDebt / 24) + 27500).toLocaleString('en-IN')}</span> above expenses.
+                Paying <span className="text-foreground font-bold">{formatCurrency(totalDebt / 24, settings.currency)}</span> of principal monthly would cover the current balance in 24 months, before interest.
               </p>
             </div>
           </div>
