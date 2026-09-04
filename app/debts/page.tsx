@@ -1,4 +1,5 @@
 "use client";
+import Link from "next/link";
 
 import { useFinanceStore, Debt } from "@/lib/store";
 import { formatCurrency } from "@/lib/utils";
@@ -161,11 +162,7 @@ export default function DebtsPage() {
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2">
-                        <InlineEdit
-                          value={debt.name}
-                          onSave={(val) => handleUpdate(debt.id, { name: val })}
-                          className="text-lg font-bold"
-                        />
+                        <Link href={`/debts/${debt.id}`} className="text-lg font-bold hover:text-primary">{debt.name}</Link>
                       </div>
                       <InlineEdit
                         type="textarea"

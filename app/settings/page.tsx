@@ -73,7 +73,7 @@ export default function SettingsPage() {
                 className="w-full bg-secondary/50 border border-border/50 rounded-2xl px-6 py-4 outline-none focus:ring-2 focus:ring-primary/20 transition-all appearance-none"
               >
                 {Object.keys(rates.rates).map(c => (
-                  <option key={c} value={c}>{c}</option>
+                  <option key={c} value={c}>{c === 'INR' ? 'INR — Indian Rupee' : c}</option>
                 ))}
               </select>
             </div>

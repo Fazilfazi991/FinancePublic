@@ -27,10 +27,10 @@ const EXPENSE_CATEGORIES = [
 ];
 
 const INCOME_CATEGORIES = [
+  { value: "Salary", label: "💼 Salary" },
+  { value: "Freelance", label: "💻 Freelance" },
   { value: "Business", label: "💼 Business" },
-  { value: "Web Dev — UAE", label: "💻 Web Dev — UAE" },
-  { value: "Freelance Marketing", label: "📣 Freelance Marketing" },
-  { value: "Web Dev — India", label: "💻 Web Dev — India" },
+  { value: "Investments", label: "📈 Investments" },
   { value: "Other Income", label: "🏦 Other Income" },
 ];
 

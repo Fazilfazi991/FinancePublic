@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { clearDemoWorkspace, createDemoWorkspace, isDemoId, saveDemoWorkspace } from '@/lib/demo-data';
+import { clearDemoWorkspace, createDemoWorkspace, DEMO_STORAGE_KEY, isDemoId, saveDemoWorkspace } from '@/lib/demo-data';
 
 export interface Debt {
   id: string;
@@ -136,6 +136,7 @@ interface FinanceState {
 
   // CRUD actions — update local state + call API
   addTransaction: (txn: Transaction) => void;
+  recordDebtPayment: (debtId: string, accountId: string, amount: number, date: string, notes?: string) => void;
   deleteTransaction: (id: string) => void;
   updateTransaction: (id: string, txn: Partial<Transaction>) => void;
 
@@ -207,7 +208,7 @@ export const useFinanceStore = create<FinanceState>()(
     },
     removeDemoData: () => {
       const state = get();
-      const stored = typeof window !== 'undefined' ? localStorage.getItem('finance-demo-workspace-v1') : null;
+      const stored = typeof window !== 'undefined' ? localStorage.getItem(DEMO_STORAGE_KEY) : null;
       let previousCurrency = state.settings.currency;
       try { previousCurrency = stored ? JSON.parse(stored).previousCurrency || previousCurrency : previousCurrency; } catch {}
       clearDemoWorkspace();
@@ -226,7 +227,7 @@ export const useFinanceStore = create<FinanceState>()(
       const state = get();
       if (!state.demoMode) return;
       const workspace = createDemoWorkspace();
-      const previousCurrency = (() => { try { return JSON.parse(localStorage.getItem('finance-demo-workspace-v1') || '{}').previousCurrency || 'INR'; } catch { return 'INR'; } })();
+      const previousCurrency = (() => { try { return JSON.parse(localStorage.getItem(DEMO_STORAGE_KEY) || '{}').previousCurrency || 'INR'; } catch { return 'INR'; } })();
       saveDemoWorkspace(workspace, previousCurrency);
       set({ ...workspace, demoMode: true, settings: { ...state.settings, currency: 'INR' } });
     },
@@ -244,6 +245,34 @@ export const useFinanceStore = create<FinanceState>()(
     addTransaction: (txn) => {
       set((state) => ({ transactions: [txn, ...state.transactions] }));
       api.post('/api/transactions', txn);
+    },
+    recordDebtPayment: (debtId, accountId, amount, date, notes = '') => {
+      const state = get();
+      const debt = state.debts.find(item => item.id === debtId);
+      const account = state.accounts.find(item => item.id === accountId);
+      if (!debt || !account || amount <= 0) return;
+      const payment = Math.min(amount, debt.balance);
+      const demoPayment = isDemoId(debtId);
+      const txn: Transaction = {
+        id: demoPayment ? `demo-transaction-payment-${crypto.randomUUID()}` : crypto.randomUUID(),
+        type: 'expense', amount: payment, accountId, category: 'Debt Payment',
+        description: `Payment · ${debt.name}`, date, currency: account.currency,
+        createdAt: new Date().toISOString(), notes,
+      };
+      const updatedDebt = { ...debt, balance: Math.max(0, debt.balance - payment) };
+      set(current => ({
+        transactions: [txn, ...current.transactions],
+        debts: current.debts.map(item => item.id === debtId ? updatedDebt : item),
+      }));
+      if (demoPayment) {
+        const next = get();
+        let previousCurrency = 'INR';
+        try { previousCurrency = JSON.parse(localStorage.getItem(DEMO_STORAGE_KEY) || '{}').previousCurrency || previousCurrency; } catch {}
+        saveDemoWorkspace({ accounts: next.accounts, transactions: next.transactions, debts: next.debts, goals: next.goals, expenses: next.expenses, incomes: next.incomes }, previousCurrency);
+      } else {
+        api.post('/api/transactions', txn);
+        api.put(`/api/debts/${debtId}`, updatedDebt);
+      }
     },
     deleteTransaction: (id) => {
       set((state) => ({ transactions: state.transactions.filter(t => t.id !== id) }));

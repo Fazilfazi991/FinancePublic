@@ -1,106 +1,69 @@
 import type { Account, Debt, Expense, Goal, Income, Transaction } from "@/lib/store";
 
 export const DEMO_PREFIX = "demo-";
-export const DEMO_STORAGE_KEY = "finance-demo-workspace-v1";
+export const DEMO_STORAGE_KEY = "finance-demo-workspace-v2";
+const LEGACY_DEMO_STORAGE_KEY = "finance-demo-workspace-v1";
 
-export interface DemoWorkspace {
-  accounts: Account[];
-  transactions: Transaction[];
-  debts: Debt[];
-  goals: Goal[];
-  expenses: Expense[];
-  incomes: Income[];
-}
+export interface DemoWorkspace { accounts: Account[]; transactions: Transaction[]; debts: Debt[]; goals: Goal[]; expenses: Expense[]; incomes: Income[] }
 
-const isoDay = (offset: number) => {
-  const date = new Date();
-  date.setHours(12, 0, 0, 0);
-  if (offset <= 0 && offset > -30) date.setDate(Math.max(1, date.getDate() + offset));
-  else date.setDate(date.getDate() + offset);
+const monthDate = (monthOffset: number, preferredDay: number) => {
+  const today = new Date();
+  const date = new Date(today.getFullYear(), today.getMonth() + monthOffset, 1, 12);
+  const maxDay = monthOffset === 0 ? today.getDate() : new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
+  date.setDate(Math.min(preferredDay, maxDay));
   return date.toISOString().slice(0, 10);
 };
-
-const createdAt = (offset: number) => `${isoDay(offset)}T12:00:00.000Z`;
+const timestamp = (date: string) => `${date}T12:00:00.000Z`;
 
 export function createDemoWorkspace(): DemoWorkspace {
   const accounts: Account[] = [
-    { id: "demo-account-checking", name: "Main Checking", institution: "Community Bank", type: "current", currency: "INR", openingBalance: -98.65, color: "#10b981", createdAt: createdAt(-120), isDefault: true },
-    { id: "demo-account-savings", name: "Savings", institution: "Community Bank", type: "savings", currency: "INR", openingBalance: 7900, color: "#38bdf8", createdAt: createdAt(-180) },
-    { id: "demo-account-cash", name: "Cash", institution: "Wallet", type: "cash", currency: "INR", openingBalance: 180, color: "#f59e0b", createdAt: createdAt(-60) },
-    { id: "demo-account-investments", name: "Investments", institution: "Sample Brokerage", type: "investment", currency: "INR", openingBalance: 12750, color: "#8b5cf6", createdAt: createdAt(-240) },
-    { id: "demo-account-card", name: "Credit Card", institution: "Sample Credit Union", type: "credit", currency: "INR", openingBalance: -685.26, color: "#f43f5e", createdAt: createdAt(-150) },
+    { id: "demo-account-main", name: "Main Bank", institution: "Sample Bank", type: "current", currency: "INR", openingBalance: 79000, color: "#10b981", createdAt: timestamp(monthDate(-4, 1)), isDefault: true },
+    { id: "demo-account-savings", name: "Savings", institution: "Sample Bank", type: "savings", currency: "INR", openingBalance: 120000, color: "#38bdf8", createdAt: timestamp(monthDate(-6, 1)) },
+    { id: "demo-account-cash", name: "Cash", institution: "Wallet", type: "cash", currency: "INR", openingBalance: 12500, color: "#f59e0b", createdAt: timestamp(monthDate(-3, 1)) },
   ];
 
-  const rows: Array<[string, Transaction["type"], number, string, string, string, number, string?]> = [
-    ["salary", "income", 4800, "demo-account-checking", "Income", "Salary", -3],
-    ["freelance", "income", 650, "demo-account-checking", "Freelance", "Freelance payment", -5],
-    ["rent", "expense", 1350, "demo-account-checking", "Bills", "Rent", -2],
-    ["groceries", "expense", 112.4, "demo-account-checking", "Food & Dining", "Groceries", -4],
-    ["fuel", "expense", 68.2, "demo-account-checking", "Transport", "Fuel", -6],
-    ["coffee", "expense", 7.5, "demo-account-checking", "Food & Dining", "Coffee", -7],
-    ["netflix", "expense", 15.99, "demo-account-card", "Entertainment", "Netflix", -8],
-    ["electricity", "expense", 94.1, "demo-account-checking", "Bills", "Electricity", -9],
-    ["dining", "expense", 72.6, "demo-account-card", "Food & Dining", "Dining", -10],
-    ["shopping", "expense", 125, "demo-account-card", "Shopping", "Shopping", -11],
-    ["savings", "transfer", 500, "demo-account-checking", "Transfer", "Monthly savings", -12, "demo-account-savings"],
-    ["pharmacy", "expense", 36.75, "demo-account-card", "Other", "Pharmacy", -14],
-    ["previous-salary", "income", 4800, "demo-account-checking", "Income", "Salary", -33],
-    ["previous-rent", "expense", 1350, "demo-account-checking", "Bills", "Rent", -32],
-    ["previous-groceries", "expense", 286.35, "demo-account-checking", "Food & Dining", "Groceries", -36],
-    ["previous-transport", "expense", 132.8, "demo-account-checking", "Transport", "Transport", -39],
-    ["previous-entertainment", "expense", 84.5, "demo-account-card", "Entertainment", "Movie night", -42],
-    ["previous-shopping", "expense", 219.9, "demo-account-card", "Shopping", "Household shopping", -45],
+  const rows: Array<[string, Transaction["type"], number, string, string, number, number]> = [
+    ["salary", "income", 120000, "Income", "Salary", 0, 1], ["freelance", "income", 25000, "Freelance", "Freelance payment", 0, 2],
+    ["rent", "expense", 25000, "Housing", "Rent", 0, 2], ["groceries", "expense", 12000, "Food & Dining", "Groceries", 0, 3],
+    ["transport", "expense", 8000, "Transport", "Transport", 0, 4], ["utilities", "expense", 6000, "Utilities", "Utilities", 0, 5],
+    ["subscriptions", "expense", 2000, "Entertainment", "Subscriptions", 0, 6], ["living", "expense", 10000, "Other", "Other living costs", 0, 7],
+    ["debt-card", "expense", 18000, "Debt Payment", "Payment · Credit Card", 0, 8], ["debt-gold", "expense", 14000, "Debt Payment", "Payment · Gold Loan", 0, 9],
+    ["prev-salary", "income", 120000, "Income", "Salary", -1, 1], ["prev-freelance", "income", 25000, "Freelance", "Freelance payment", -1, 3],
+    ["prev-rent", "expense", 25000, "Housing", "Rent", -1, 2], ["prev-groceries", "expense", 13000, "Food & Dining", "Groceries", -1, 6],
+    ["prev-transport", "expense", 8000, "Transport", "Transport", -1, 9], ["prev-utilities", "expense", 7000, "Utilities", "Utilities", -1, 12],
+    ["prev-subscriptions", "expense", 2000, "Entertainment", "Subscriptions", -1, 15], ["prev-living", "expense", 10000, "Other", "Other living costs", -1, 18],
+    ["prev-debt-card", "expense", 14000, "Debt Payment", "Payment · Credit Card", -1, 20], ["prev-debt-loan", "expense", 10000, "Debt Payment", "Payment · Personal Loan", -1, 22],
   ];
-  const transactions = rows.map(([id, type, amount, accountId, category, description, offset, toAccountId]) => ({
-    id: `demo-transaction-${id}`, type, amount, accountId, toAccountId, category, description,
-    date: isoDay(offset), currency: "INR", createdAt: createdAt(offset), notes: "Fictional sample transaction",
-  }));
-
-  const expenses: Expense[] = [
-    ["food", "Food & Dining", 800], ["transport", "Transport", 450], ["shopping", "Shopping", 500],
-    ["bills", "Bills", 1600], ["entertainment", "Entertainment", 250], ["other", "Other", 400],
-  ].map(([id, name, budgeted]) => ({ id: `demo-budget-${id}`, name: String(name), category: String(name), budgeted: Number(budgeted), spent: 0 }));
-
-  const goals: Goal[] = [
-    ["emergency", "Emergency Fund", 10000, 7200, 270], ["vacation", "Vacation", 4000, 1800, 180], ["car", "New Car", 15000, 3500, 540],
-  ].map(([id, name, target, saved, days]) => ({ id: `demo-goal-${id}`, name: String(name), target: Number(target), saved: Number(saved), deadline: isoDay(Number(days)), category: "Savings", description: "Fictional sample goal", createdAt: createdAt(-90), lastUpdated: createdAt(-2) }));
+  const transactions: Transaction[] = rows.map(([id,type,amount,category,description,month,day]) => {
+    const date=monthDate(month,day); return { id:`demo-transaction-${id}`,type,amount,accountId:"demo-account-main",category,description,date,currency:"INR",createdAt:timestamp(date),notes:"Fictional sample transaction" };
+  });
 
   const debts: Debt[] = [
-    { id: "demo-debt-card", name: "Credit Card", total: 2500, balance: 1240, rate: 18.9, minPayment: 75, notes: "Fictional sample debt", color: "#f43f5e" },
-    { id: "demo-debt-loan", name: "Personal Loan", total: 12000, balance: 8700, rate: 7.5, minPayment: 310, notes: "Fictional sample debt", color: "#f59e0b" },
+    { id:"demo-debt-card",name:"Credit Card",total:120000,balance:58000,rate:18.9,minPayment:5000,notes:"Fictional sample debt",color:"#f43f5e" },
+    { id:"demo-debt-personal",name:"Personal Loan",total:600000,balance:440000,rate:10.5,minPayment:18000,notes:"Fictional sample debt",color:"#f59e0b" },
+    { id:"demo-debt-gold",name:"Gold Loan",total:300000,balance:210000,rate:11.5,minPayment:10000,notes:"Fictional sample debt",color:"#eab308" },
+    { id:"demo-debt-education",name:"Education Loan",total:500000,balance:360000,rate:8.5,minPayment:12000,notes:"Fictional sample debt",color:"#8b5cf6" },
   ];
-
+  const expenses: Expense[] = [["housing","Housing",25000],["food","Food & Dining",12000],["transport","Transport",8000],["utilities","Utilities",6000],["subscriptions","Entertainment",2000],["other","Other",10000]].map(([id,name,budgeted])=>({id:`demo-budget-${id}`,name:String(name),category:String(name),budgeted:Number(budgeted),spent:0}));
+  const date=monthDate(0,1);
+  const goals: Goal[] = [{ id:"demo-goal-emergency",name:"Emergency Fund",target:300000,saved:120000,deadline:monthDate(8,1),category:"Financial safety",description:"A buffer for unexpected expenses",createdAt:timestamp(monthDate(-3,1)),lastUpdated:timestamp(date) }];
   const incomes: Income[] = [
-    { id: "demo-income-salary", name: "Salary", type: "Business", status: "active", currency: "INR", expectedMonthly: 4800, actualThisMonth: 4800, notes: "Fictional sample income", color: "#10b981", icon: "briefcase", linkedAccountId: "demo-account-checking" },
-    { id: "demo-income-freelance", name: "Freelance", type: "Freelance", status: "active", currency: "INR", expectedMonthly: 650, actualThisMonth: 650, notes: "Fictional sample income", color: "#38bdf8", icon: "code", linkedAccountId: "demo-account-checking" },
+    { id:"demo-income-salary",name:"Salary",type:"Business",status:"active",currency:"INR",expectedMonthly:120000,actualThisMonth:120000,notes:"Fictional sample income",color:"#10b981",icon:"briefcase",linkedAccountId:"demo-account-main" },
+    { id:"demo-income-freelance",name:"Freelance",type:"Freelance",status:"active",currency:"INR",expectedMonthly:25000,actualThisMonth:25000,notes:"Fictional sample income",color:"#38bdf8",icon:"code",linkedAccountId:"demo-account-main" },
   ];
-
-  return { accounts, transactions, debts, goals, expenses, incomes };
+  return { accounts,transactions,debts,goals,expenses,incomes };
 }
 
-export const isDemoId = (id: string) => id.startsWith(DEMO_PREFIX);
-
-export function saveDemoWorkspace(workspace: DemoWorkspace, previousCurrency: string) {
-  localStorage.setItem(DEMO_STORAGE_KEY, JSON.stringify({ workspace, previousCurrency }));
-}
-
-export function readDemoWorkspace(): { workspace: DemoWorkspace; previousCurrency: string } | null {
-  try {
-    const value = localStorage.getItem(DEMO_STORAGE_KEY);
-    if (!value) return null;
-    const parsed = JSON.parse(value);
-    const collections = Object.values(parsed.workspace || {}) as Array<Array<{ id?: string }>>;
-    if (!collections.length || collections.some(items => !Array.isArray(items) || items.some(item => !item.id?.startsWith(DEMO_PREFIX)))) return null;
-    parsed.workspace.accounts = parsed.workspace.accounts.map((item: Account) => ({ ...item, currency: 'INR' }));
-    parsed.workspace.transactions = parsed.workspace.transactions.map((item: Transaction) => ({ ...item, currency: 'INR' }));
-    parsed.workspace.incomes = parsed.workspace.incomes.map((item: Income) => ({ ...item, currency: 'INR' }));
-    localStorage.setItem(DEMO_STORAGE_KEY, JSON.stringify(parsed));
+export const isDemoId = (id:string) => id.startsWith(DEMO_PREFIX);
+export function saveDemoWorkspace(workspace:DemoWorkspace,previousCurrency:string){localStorage.setItem(DEMO_STORAGE_KEY,JSON.stringify({workspace,previousCurrency}))}
+export function readDemoWorkspace():{workspace:DemoWorkspace;previousCurrency:string}|null{
+  try{
+    const current=localStorage.getItem(DEMO_STORAGE_KEY),legacy=localStorage.getItem(LEGACY_DEMO_STORAGE_KEY);
+    if(!current&&legacy){const previousCurrency=JSON.parse(legacy).previousCurrency||"INR",workspace=createDemoWorkspace();saveDemoWorkspace(workspace,previousCurrency);localStorage.removeItem(LEGACY_DEMO_STORAGE_KEY);return{workspace,previousCurrency}}
+    if(!current)return null;
+    const parsed=JSON.parse(current),collections=Object.values(parsed.workspace||{}) as Array<Array<{id?:string}>>;
+    if(!collections.length||collections.some(items=>!Array.isArray(items)||items.some(item=>!item.id?.startsWith(DEMO_PREFIX))))return null;
     return parsed;
-  } catch {
-    return null;
-  }
+  }catch{return null}
 }
-
-export function clearDemoWorkspace() {
-  localStorage.removeItem(DEMO_STORAGE_KEY);
-}
+export function clearDemoWorkspace(){localStorage.removeItem(DEMO_STORAGE_KEY);localStorage.removeItem(LEGACY_DEMO_STORAGE_KEY)}
