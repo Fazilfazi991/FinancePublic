@@ -11,7 +11,7 @@ export function ClientProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     async function loadData() {
-      if (pathname.startsWith('/auth')) { setMounted(true); return; }
+      if (pathname.startsWith('/auth')) { useFinanceStore.setState({accounts:[],transactions:[],debts:[],goals:[],expenses:[],incomes:[],projects:[],loaded:false,demoMode:false}); setMounted(true); return; }
       try {
         const savedTheme = localStorage.getItem('finance-theme');
         const [workspaceResponse, settingsResponse] = await Promise.all([fetch('/api/workspace'),fetch('/api/settings')]);

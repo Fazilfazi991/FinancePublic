@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { clearDemoWorkspace, createDemoWorkspace, DEMO_STORAGE_KEY, isDemoId, saveDemoWorkspace } from '@/lib/demo-data';
+import { clearDemoWorkspace, isDemoId } from '@/lib/demo-data';
 
 export interface Debt {
   id: string;
@@ -120,9 +120,9 @@ interface FinanceState {
 
   // Hydrate from API
   hydrate: (data: Partial<FinanceState>) => void;
-  loadDemoData: () => boolean;
-  removeDemoData: () => void;
-  resetDemoData: () => void;
+  loadDemoData: () => Promise<boolean>;
+  removeDemoData: () => Promise<void>;
+  resetDemoData: () => Promise<void>;
 
   // Setters (local state only — used during hydrate)
   setDebts: (debts: Debt[]) => void;
@@ -197,39 +197,19 @@ export const useFinanceStore = create<FinanceState>()(
 
     hydrate: (data) => set({ ...data, loaded: true }),
 
-    loadDemoData: () => {
+    loadDemoData: async () => {
       const state = get();
       const isEmpty = !state.accounts.length && !state.transactions.length && !state.debts.length && !state.goals.length && !state.expenses.length && !state.incomes.length && !state.projects.length;
       if (!isEmpty) return false;
-      const workspace = createDemoWorkspace();
-      saveDemoWorkspace(workspace, state.settings.currency);
-      set({ ...workspace, demoMode: true, settings: { ...state.settings, currency: 'INR' } });
+      const response=await fetch('/api/demo',{method:'POST'}); if(!response.ok)return false; location.reload();
       return true;
     },
-    removeDemoData: () => {
-      const state = get();
-      const stored = typeof window !== 'undefined' ? localStorage.getItem(DEMO_STORAGE_KEY) : null;
-      let previousCurrency = state.settings.currency;
-      try { previousCurrency = stored ? JSON.parse(stored).previousCurrency || previousCurrency : previousCurrency; } catch {}
-      clearDemoWorkspace();
-      set({
-        accounts: state.accounts.filter(item => !isDemoId(item.id)),
-        transactions: state.transactions.filter(item => !isDemoId(item.id)),
-        debts: state.debts.filter(item => !isDemoId(item.id)),
-        goals: state.goals.filter(item => !isDemoId(item.id)),
-        expenses: state.expenses.filter(item => !isDemoId(item.id)),
-        incomes: state.incomes.filter(item => !isDemoId(item.id)),
-        demoMode: false,
-        settings: { ...state.settings, currency: previousCurrency },
-      });
+    removeDemoData: async () => {
+      const response=await fetch('/api/demo',{method:'DELETE'});if(!response.ok)throw new Error('Unable to remove sample data.');
+      clearDemoWorkspace();set({accounts:[],transactions:[],debts:[],goals:[],expenses:[],incomes:[],demoMode:false});
     },
-    resetDemoData: () => {
-      const state = get();
-      if (!state.demoMode) return;
-      const workspace = createDemoWorkspace();
-      const previousCurrency = (() => { try { return JSON.parse(localStorage.getItem(DEMO_STORAGE_KEY) || '{}').previousCurrency || 'INR'; } catch { return 'INR'; } })();
-      saveDemoWorkspace(workspace, previousCurrency);
-      set({ ...workspace, demoMode: true, settings: { ...state.settings, currency: 'INR' } });
+    resetDemoData: async () => {
+      if(!get().demoMode)return;const response=await fetch('/api/demo',{method:'PUT'});if(!response.ok)throw new Error('Unable to reset sample data.');location.reload();
     },
 
     setDebts: (debts) => set({ debts }),
@@ -251,7 +231,8 @@ export const useFinanceStore = create<FinanceState>()(
       const debt = state.debts.find(item => item.id === debtId);
       const account = state.accounts.find(item => item.id === accountId);
       if (!debt || !account || amount <= 0 || amount > debt.balance) throw new Error('Enter a valid payment amount.');
-      const response = await fetch('/api/debt-payments',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({debtId,accountId,amount,date,notes})});
+      const idempotencyKey=crypto.randomUUID();
+      const response = await fetch('/api/debt-payments',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({debtId,accountId,amount,date,notes,idempotencyKey})});
       const result=await response.json(); if(!response.ok) throw new Error(result?.error?.message||'The payment could not be recorded.');
       const d=result.debt,t=result.transaction;
       const updatedDebt={...debt,total:Number(d.original_amount),balance:Number(d.balance),rate:d.apr==null?0:Number(d.apr),minPayment:d.minimum_payment==null?0:Number(d.minimum_payment)};

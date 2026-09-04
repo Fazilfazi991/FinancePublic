@@ -21,5 +21,6 @@ export async function updateSession(request: NextRequest) {
     return NextResponse.redirect(url);
   }
   if (user && path === '/auth') return NextResponse.redirect(new URL('/', request.url));
+  if (path.startsWith('/api/')) response.headers.set('Cache-Control','private, no-store, max-age=0');
   return response;
 }

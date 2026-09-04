@@ -1,5 +1,5 @@
 import {z} from 'zod'; import {NextResponse} from 'next/server'; import {apiError,requireUser} from '@/lib/api-auth';
-const schema=z.object({debtId:z.string().uuid(),accountId:z.string().uuid(),amount:z.number().positive().multipleOf(.01),date:z.iso.date(),notes:z.string().max(500).optional()});
+const schema=z.object({debtId:z.string().uuid(),accountId:z.string().uuid(),amount:z.number().positive().multipleOf(.01),date:z.iso.date(),notes:z.string().max(500).optional(),idempotencyKey:z.string().uuid()});
 export async function POST(request:Request){const auth=await requireUser();if('response'in auth)return auth.response;let input;try{input=schema.parse(await request.json())}catch{return apiError('Invalid debt payment details')}
- const{data,error}=await auth.supabase.rpc('record_debt_payment',{p_debt_id:input.debtId,p_account_id:input.accountId,p_amount:input.amount,p_payment_date:input.date,p_notes:input.notes??null});
+ const{data,error}=await auth.supabase.rpc('record_debt_payment',{p_debt_id:input.debtId,p_account_id:input.accountId,p_amount:input.amount,p_payment_date:input.date,p_notes:input.notes??null,p_idempotency_key:input.idempotencyKey});
  if(error){const known=error.message.includes('not_found')?'Debt or payment account was not found.':error.message.includes('exceeds')?'Payment cannot exceed the remaining debt balance.':'The payment could not be recorded.';return apiError(known,error.code==='P0002'?404:400)}return NextResponse.json(data,{status:201})}

@@ -55,3 +55,5 @@ RLS is enabled on all user-owned tables. Policies use `auth.uid()` for select, i
 Freedom Number is the sum of active debt balances. Monthly Payoff Power is monthly income minus essential non-debt living expenses; debt payments must not be counted again as living expenses. Avalanche prioritizes known highest APR (unknown APR follows known APR); Snowball prioritizes lowest balance. Interest compounds monthly, required minimums are paid first, and cleared-debt capacity rolls forward. Ties resolve deterministically by balance/APR then ID.
 
 Payoff dates are estimates. Missing APR lowers estimate quality, and a budget below required minimums produces a shortfall state instead of a misleading date. This is planning software, not guaranteed financial advice.
+
+The precise production authentication checklist is in `docs/production-auth-checklist.md`.
