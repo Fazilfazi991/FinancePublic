@@ -30,7 +30,7 @@ export function ClientProvider({ children }: { children: React.ReactNode }) {
         const storedDemo = readDemoWorkspace();
         if (storedDemo && !hasRealData) {
           hydrate({ ...storedDemo.workspace, demoMode: true,
-            settings: { ...useFinanceStore.getState().settings, ...settings, currency: 'USD',
+            settings: { ...useFinanceStore.getState().settings, ...settings, currency: 'INR',
               ...(savedTheme && ['system', 'light', 'dark'].includes(savedTheme) ? { theme: savedTheme as 'system' | 'light' | 'dark' } : {}) } });
           setMounted(true);
           return;

@@ -24,11 +24,11 @@ const createdAt = (offset: number) => `${isoDay(offset)}T12:00:00.000Z`;
 
 export function createDemoWorkspace(): DemoWorkspace {
   const accounts: Account[] = [
-    { id: "demo-account-checking", name: "Main Checking", institution: "Community Bank", type: "current", currency: "USD", openingBalance: -98.65, color: "#10b981", createdAt: createdAt(-120), isDefault: true },
-    { id: "demo-account-savings", name: "Savings", institution: "Community Bank", type: "savings", currency: "USD", openingBalance: 7900, color: "#38bdf8", createdAt: createdAt(-180) },
-    { id: "demo-account-cash", name: "Cash", institution: "Wallet", type: "cash", currency: "USD", openingBalance: 180, color: "#f59e0b", createdAt: createdAt(-60) },
-    { id: "demo-account-investments", name: "Investments", institution: "Sample Brokerage", type: "investment", currency: "USD", openingBalance: 12750, color: "#8b5cf6", createdAt: createdAt(-240) },
-    { id: "demo-account-card", name: "Credit Card", institution: "Sample Credit Union", type: "credit", currency: "USD", openingBalance: -685.26, color: "#f43f5e", createdAt: createdAt(-150) },
+    { id: "demo-account-checking", name: "Main Checking", institution: "Community Bank", type: "current", currency: "INR", openingBalance: -98.65, color: "#10b981", createdAt: createdAt(-120), isDefault: true },
+    { id: "demo-account-savings", name: "Savings", institution: "Community Bank", type: "savings", currency: "INR", openingBalance: 7900, color: "#38bdf8", createdAt: createdAt(-180) },
+    { id: "demo-account-cash", name: "Cash", institution: "Wallet", type: "cash", currency: "INR", openingBalance: 180, color: "#f59e0b", createdAt: createdAt(-60) },
+    { id: "demo-account-investments", name: "Investments", institution: "Sample Brokerage", type: "investment", currency: "INR", openingBalance: 12750, color: "#8b5cf6", createdAt: createdAt(-240) },
+    { id: "demo-account-card", name: "Credit Card", institution: "Sample Credit Union", type: "credit", currency: "INR", openingBalance: -685.26, color: "#f43f5e", createdAt: createdAt(-150) },
   ];
 
   const rows: Array<[string, Transaction["type"], number, string, string, string, number, string?]> = [
@@ -53,7 +53,7 @@ export function createDemoWorkspace(): DemoWorkspace {
   ];
   const transactions = rows.map(([id, type, amount, accountId, category, description, offset, toAccountId]) => ({
     id: `demo-transaction-${id}`, type, amount, accountId, toAccountId, category, description,
-    date: isoDay(offset), currency: "USD", createdAt: createdAt(offset), notes: "Fictional sample transaction",
+    date: isoDay(offset), currency: "INR", createdAt: createdAt(offset), notes: "Fictional sample transaction",
   }));
 
   const expenses: Expense[] = [
@@ -71,8 +71,8 @@ export function createDemoWorkspace(): DemoWorkspace {
   ];
 
   const incomes: Income[] = [
-    { id: "demo-income-salary", name: "Salary", type: "Business", status: "active", currency: "USD", expectedMonthly: 4800, actualThisMonth: 4800, notes: "Fictional sample income", color: "#10b981", icon: "briefcase", linkedAccountId: "demo-account-checking" },
-    { id: "demo-income-freelance", name: "Freelance", type: "Freelance", status: "active", currency: "USD", expectedMonthly: 650, actualThisMonth: 650, notes: "Fictional sample income", color: "#38bdf8", icon: "code", linkedAccountId: "demo-account-checking" },
+    { id: "demo-income-salary", name: "Salary", type: "Business", status: "active", currency: "INR", expectedMonthly: 4800, actualThisMonth: 4800, notes: "Fictional sample income", color: "#10b981", icon: "briefcase", linkedAccountId: "demo-account-checking" },
+    { id: "demo-income-freelance", name: "Freelance", type: "Freelance", status: "active", currency: "INR", expectedMonthly: 650, actualThisMonth: 650, notes: "Fictional sample income", color: "#38bdf8", icon: "code", linkedAccountId: "demo-account-checking" },
   ];
 
   return { accounts, transactions, debts, goals, expenses, incomes };
@@ -91,6 +91,10 @@ export function readDemoWorkspace(): { workspace: DemoWorkspace; previousCurrenc
     const parsed = JSON.parse(value);
     const collections = Object.values(parsed.workspace || {}) as Array<Array<{ id?: string }>>;
     if (!collections.length || collections.some(items => !Array.isArray(items) || items.some(item => !item.id?.startsWith(DEMO_PREFIX)))) return null;
+    parsed.workspace.accounts = parsed.workspace.accounts.map((item: Account) => ({ ...item, currency: 'INR' }));
+    parsed.workspace.transactions = parsed.workspace.transactions.map((item: Transaction) => ({ ...item, currency: 'INR' }));
+    parsed.workspace.incomes = parsed.workspace.incomes.map((item: Income) => ({ ...item, currency: 'INR' }));
+    localStorage.setItem(DEMO_STORAGE_KEY, JSON.stringify(parsed));
     return parsed;
   } catch {
     return null;

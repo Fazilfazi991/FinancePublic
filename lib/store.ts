@@ -202,7 +202,7 @@ export const useFinanceStore = create<FinanceState>()(
       if (!isEmpty) return false;
       const workspace = createDemoWorkspace();
       saveDemoWorkspace(workspace, state.settings.currency);
-      set({ ...workspace, demoMode: true, settings: { ...state.settings, currency: 'USD' } });
+      set({ ...workspace, demoMode: true, settings: { ...state.settings, currency: 'INR' } });
       return true;
     },
     removeDemoData: () => {
@@ -228,7 +228,7 @@ export const useFinanceStore = create<FinanceState>()(
       const workspace = createDemoWorkspace();
       const previousCurrency = (() => { try { return JSON.parse(localStorage.getItem('finance-demo-workspace-v1') || '{}').previousCurrency || 'INR'; } catch { return 'INR'; } })();
       saveDemoWorkspace(workspace, previousCurrency);
-      set({ ...workspace, demoMode: true, settings: { ...state.settings, currency: 'USD' } });
+      set({ ...workspace, demoMode: true, settings: { ...state.settings, currency: 'INR' } });
     },
 
     setDebts: (debts) => set({ debts }),
