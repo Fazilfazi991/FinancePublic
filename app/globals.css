@@ -1,0 +1,87 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 240 33% 98%;
+    --foreground: 221 39% 13%;
+    --card: 0 0% 100%;
+    --card-foreground: 240 10% 3.9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 240 10% 3.9%;
+    --primary: 160 100% 16%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 226 56% 95%;
+    --secondary-foreground: 240 5.9% 10%;
+    --muted: 240 4.8% 95.9%;
+    --muted-foreground: 215 16% 42%;
+    --accent: 240 4.8% 95.9%;
+    --accent-foreground: 240 5.9% 10%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 225 33% 91%;
+    --input: 240 5.9% 90%;
+    --ring: 142 71% 45%;
+    --radius: 1rem;
+  }
+
+  .dark {
+    --background: 216 25% 7%;
+    --foreground: 0 0% 98%;
+    --card: 215 24% 12%;
+    --card-foreground: 0 0% 98%;
+    --popover: 240 10% 5%;
+    --popover-foreground: 0 0% 98%;
+    --primary: 142 71% 45%;
+    --primary-foreground: 144.9 80.4% 10%;
+    --secondary: 215 22% 16%;
+    --secondary-foreground: 0 0% 98%;
+    --muted: 240 3.7% 15.9%;
+    --muted-foreground: 240 5% 64.9%;
+    --accent: 240 3.7% 15.9%;
+    --accent-foreground: 0 0% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 216 24% 22%;
+    --input: 240 3.7% 15.9%;
+    --ring: 142 71% 45%;
+
+    --bg-surface: rgba(26, 26, 26, 0.6);
+    --bg-raised: rgba(45, 45, 45, 0.4);
+    --bg-overlay: rgba(30, 30, 30, 0.8);
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+    -webkit-tap-highlight-color: transparent;
+    font-feature-settings: "cv05" 1;
+    overscroll-behavior-y: none;
+  }
+}
+
+@layer utilities {
+  .glass {
+    @apply bg-card border border-border shadow-sm;
+  }
+  
+  .glass-raised {
+    @apply bg-secondary/40 backdrop-blur-md border border-border/30;
+  }
+
+  .tabular {
+    font-variant-numeric: tabular-nums;
+  }
+
+  .mobile-card { @apply rounded-2xl border border-border bg-card shadow-sm; }
+  .mobile-page { @apply space-y-6 pb-28 lg:pb-8; }
+  .safe-bottom { padding-bottom: max(0.75rem, env(safe-area-inset-bottom)); }
+  .safe-top { padding-top: env(safe-area-inset-top); }
+  .tap-target { min-height: 44px; min-width: 44px; }
+  ::selection { background: hsl(var(--primary) / .22); }
+}
