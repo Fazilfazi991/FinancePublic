@@ -136,7 +136,7 @@ interface FinanceState {
 
   // CRUD actions — update local state + call API
   addTransaction: (txn: Transaction) => void;
-  recordDebtPayment: (debtId: string, accountId: string, amount: number, date: string, notes?: string) => void;
+  recordDebtPayment: (debtId: string, accountId: string, amount: number, date: string, notes?: string) => Promise<void>;
   deleteTransaction: (id: string) => void;
   updateTransaction: (id: string, txn: Partial<Transaction>) => void;
 
@@ -246,33 +246,17 @@ export const useFinanceStore = create<FinanceState>()(
       set((state) => ({ transactions: [txn, ...state.transactions] }));
       api.post('/api/transactions', txn);
     },
-    recordDebtPayment: (debtId, accountId, amount, date, notes = '') => {
+    recordDebtPayment: async (debtId, accountId, amount, date, notes = '') => {
       const state = get();
       const debt = state.debts.find(item => item.id === debtId);
       const account = state.accounts.find(item => item.id === accountId);
-      if (!debt || !account || amount <= 0) return;
-      const payment = Math.min(amount, debt.balance);
-      const demoPayment = isDemoId(debtId);
-      const txn: Transaction = {
-        id: demoPayment ? `demo-transaction-payment-${crypto.randomUUID()}` : crypto.randomUUID(),
-        type: 'expense', amount: payment, accountId, category: 'Debt Payment',
-        description: `Payment · ${debt.name}`, date, currency: account.currency,
-        createdAt: new Date().toISOString(), notes,
-      };
-      const updatedDebt = { ...debt, balance: Math.max(0, debt.balance - payment) };
-      set(current => ({
-        transactions: [txn, ...current.transactions],
-        debts: current.debts.map(item => item.id === debtId ? updatedDebt : item),
-      }));
-      if (demoPayment) {
-        const next = get();
-        let previousCurrency = 'INR';
-        try { previousCurrency = JSON.parse(localStorage.getItem(DEMO_STORAGE_KEY) || '{}').previousCurrency || previousCurrency; } catch {}
-        saveDemoWorkspace({ accounts: next.accounts, transactions: next.transactions, debts: next.debts, goals: next.goals, expenses: next.expenses, incomes: next.incomes }, previousCurrency);
-      } else {
-        api.post('/api/transactions', txn);
-        api.put(`/api/debts/${debtId}`, updatedDebt);
-      }
+      if (!debt || !account || amount <= 0 || amount > debt.balance) throw new Error('Enter a valid payment amount.');
+      const response = await fetch('/api/debt-payments',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({debtId,accountId,amount,date,notes})});
+      const result=await response.json(); if(!response.ok) throw new Error(result?.error?.message||'The payment could not be recorded.');
+      const d=result.debt,t=result.transaction;
+      const updatedDebt={...debt,total:Number(d.original_amount),balance:Number(d.balance),rate:d.apr==null?0:Number(d.apr),minPayment:d.minimum_payment==null?0:Number(d.minimum_payment)};
+      const txn:Transaction={id:t.id,type:t.type,amount:Number(t.amount),accountId:t.account_id,category:t.category,description:t.description,date:t.transaction_date,currency:t.currency,createdAt:t.created_at,notes:t.notes??''};
+      set(current=>({transactions:[txn,...current.transactions],debts:current.debts.map(item=>item.id===debtId?updatedDebt:item)}));
     },
     deleteTransaction: (id) => {
       set((state) => ({ transactions: state.transactions.filter(t => t.id !== id) }));
