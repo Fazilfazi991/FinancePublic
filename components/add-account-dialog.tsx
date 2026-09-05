@@ -92,7 +92,7 @@ export function AccountDialog({ children, account, open: controlledOpen, onOpenC
           </Button>
         )}
       </DialogTrigger>}
-      <DialogContent className="sm:max-w-[425px] glass border-border/50">
+      <DialogContent className="finance-sheet sm:max-w-[425px] glass border-border/50 [&_input]:text-base">
         <DialogHeader>
           <DialogTitle className="text-xl font-bold">{account ? "Edit Account" : "New Account"}</DialogTitle>
         </DialogHeader>
@@ -179,7 +179,7 @@ export function AccountDialog({ children, account, open: controlledOpen, onOpenC
             </div>
           </div>
 
-          <DialogFooter className="pt-4">
+          <DialogFooter className="sheet-action-footer pt-4">
             <Button type="submit" className="w-full bg-primary text-primary-foreground font-bold py-6 rounded-2xl shadow-lg shadow-primary/20">
               {account ? "Update Account" : "Create Account"}
             </Button>

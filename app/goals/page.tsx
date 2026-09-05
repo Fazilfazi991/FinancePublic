@@ -369,8 +369,13 @@ export default function GoalsPage() {
             <Target className="w-12 h-12 text-muted-foreground mb-4" />
             <h3 className="text-lg font-semibold">What are you working toward?</h3>
             <p className="text-muted-foreground max-w-xs mx-auto mt-2">
-              Add your new goals to start tracking your journey.
+              Add your first goal and start tracking your progress.
             </p>
+            <AddGoalDialog>
+              <button type="button" className="tap-target mt-6 inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-5 font-semibold text-primary-foreground">
+                <Plus className="h-4 w-4" /> Create your first goal
+              </button>
+            </AddGoalDialog>
           </div>
         )}
       </div>

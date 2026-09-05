@@ -163,7 +163,7 @@ export function AddTransactionDialog({
           </Button>
         )}
       </DialogTrigger>}
-      <DialogContent className="max-h-[92dvh] overflow-y-auto border-border bg-card sm:max-w-[460px] sm:rounded-2xl max-sm:top-auto max-sm:bottom-0 max-sm:translate-y-0 max-sm:rounded-b-none max-sm:rounded-t-3xl">
+      <DialogContent className="finance-sheet max-h-[92dvh] overflow-y-auto border-border bg-card sm:max-w-[460px] sm:rounded-2xl max-sm:top-auto max-sm:bottom-0 max-sm:translate-y-0 max-sm:rounded-b-none max-sm:rounded-t-3xl [&_input]:text-base">
         <DialogHeader>
           <DialogTitle className="text-xl font-bold">New Transaction</DialogTitle>
         </DialogHeader>
@@ -357,7 +357,7 @@ export function AddTransactionDialog({
             />
           </div>
 
-          <DialogFooter className="pt-4">
+          <DialogFooter className="sheet-action-footer pt-4">
             <Button type="submit" className={`w-full font-bold py-6 rounded-2xl shadow-lg hover:scale-[1.02] transition-all ${
               type === 'expense' ? 'bg-destructive text-white shadow-destructive/20' :
               type === 'income' ? 'bg-primary text-primary-foreground shadow-primary/20' :

@@ -67,7 +67,7 @@ export function AddGoalDialog({ children, open: controlledOpen, onOpenChange }: 
           </Button>
         )}
       </DialogTrigger>}
-      <DialogContent className="sm:max-w-[425px] glass border-border/50">
+      <DialogContent className="finance-sheet sm:max-w-[425px] glass border-border/50 [&_input]:text-base [&_textarea]:text-base">
         <DialogHeader>
           <DialogTitle className="text-xl font-bold">New Goal</DialogTitle>
         </DialogHeader>
@@ -137,7 +137,7 @@ export function AddGoalDialog({ children, open: controlledOpen, onOpenChange }: 
             />
           </div>
 
-          <DialogFooter className="pt-4">
+          <DialogFooter className="sheet-action-footer pt-4">
             <Button type="submit" className="w-full bg-purple-600 text-white font-bold py-6 rounded-2xl shadow-lg shadow-purple-600/20">
               Set Goal
             </Button>
