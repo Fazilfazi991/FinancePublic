@@ -1,6 +1,6 @@
 begin;
 create extension if not exists pgtap with schema extensions;
-select plan(23);
+select plan(25);
 
 insert into auth.users(id,email,raw_user_meta_data) values
  ('10000000-0000-0000-0000-000000000001','user-a@example.invalid','{}'),
@@ -14,6 +14,10 @@ insert into public.debts(id,user_id,name,original_amount,balance,apr,minimum_pay
  ('20000000-0000-0000-0002-000000000002','20000000-0000-0000-0000-000000000002','B debt',2000,2000,20,200);
 insert into public.goals(id,user_id,name,target) values('20000000-0000-0000-0003-000000000002','20000000-0000-0000-0000-000000000002','B goal',100);
 insert into public.transactions(id,user_id,type,amount,account_id,category,transaction_date,currency) values('20000000-0000-0000-0004-000000000002','20000000-0000-0000-0000-000000000002','expense',10,'20000000-0000-0000-0001-000000000002','Test',current_date,'INR');
+
+select lives_ok($$insert into public.transactions(user_id,type,amount,account_id,category,description,transaction_date,currency,source,idempotency_key) values('10000000-0000-0000-0000-000000000001','expense',10,'10000000-0000-0000-0001-000000000001','Test','Quick Entry idempotency',current_date,'INR','quick_entry','40000000-0000-0000-0000-000000000004')$$,'first Quick Entry idempotency key succeeds');
+select throws_ok($$insert into public.transactions(user_id,type,amount,account_id,category,description,transaction_date,currency,source,idempotency_key) values('10000000-0000-0000-0000-000000000001','expense',10,'10000000-0000-0000-0001-000000000001','Test','Duplicate Quick Entry',current_date,'INR','quick_entry','40000000-0000-0000-0000-000000000004')$$,'23505','duplicate key value violates unique constraint "transactions_user_idempotency"','duplicate Quick Entry idempotency key is rejected');
+delete from public.transactions where idempotency_key='40000000-0000-0000-0000-000000000004';
 
 set local role anon;
 select throws_ok('select count(*) from public.accounts','42501','permission denied for table accounts','anonymous cannot list accounts');
