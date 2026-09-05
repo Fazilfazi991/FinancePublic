@@ -16,9 +16,29 @@ export function getBaseCurrency(profile: CurrencyProfile): SupportedCurrency | n
   return isSupportedCurrency(value) ? value.trim().toUpperCase() as SupportedCurrency : null;
 }
 
-export function findDefaultAccountForCurrency<T extends { currency: string; is_default?: boolean; isDefault?: boolean }>(
+type QuickEntryAccount = {
+  currency: string;
+  type?: string;
+  is_default?: boolean;
+  isDefault?: boolean;
+};
+
+export type QuickEntryAccountResolution<T> =
+  | { status: 'none'; account: null; eligible: T[] }
+  | { status: 'selected'; account: T; eligible: T[] }
+  | { status: 'needs_default'; account: null; eligible: T[] };
+
+export function resolveQuickEntryAccount<T extends QuickEntryAccount>(
   accounts: T[] | null | undefined,
   currency: SupportedCurrency,
-): T | undefined {
-  return accounts?.find(account => (account.is_default ?? account.isDefault ?? false) && account.currency === currency);
+): QuickEntryAccountResolution<T> {
+  const eligible = (accounts ?? []).filter(account =>
+    account.currency === currency && account.type !== 'credit' && account.type !== 'receivable',
+  );
+  if (eligible.length === 0) return { status: 'none', account: null, eligible };
+  if (eligible.length === 1) return { status: 'selected', account: eligible[0], eligible };
+  const defaultAccount = eligible.find(account => account.is_default ?? account.isDefault ?? false);
+  return defaultAccount
+    ? { status: 'selected', account: defaultAccount, eligible }
+    : { status: 'needs_default', account: null, eligible };
 }

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { findDefaultAccountForCurrency, getBaseCurrency, hasValidBaseCurrency, isSupportedCurrency } from './currency';
+import { getBaseCurrency, hasValidBaseCurrency, isSupportedCurrency, resolveQuickEntryAccount } from './currency';
 
 describe('base currency setup', () => {
   it.each(['INR', 'USD', 'AED', 'EUR'])('treats supported %s profiles as complete', base_currency => {
@@ -23,12 +23,28 @@ describe('base currency setup', () => {
     expect(getBaseCurrency({ base_currency: ' usd ' })).toBe('USD');
   });
 
-  it('requires a default account in the profile base currency', () => {
-    const accounts = [
-      { id: 'inr', currency: 'INR', is_default: false },
-      { id: 'usd', currency: 'USD', is_default: true },
-    ];
-    expect(findDefaultAccountForCurrency(accounts, 'USD')?.id).toBe('usd');
-    expect(findDefaultAccountForCurrency(accounts, 'INR')).toBeUndefined();
+  it('reports no eligible accounts', () => {
+    expect(resolveQuickEntryAccount([], 'INR').status).toBe('none');
+  });
+
+  it('automatically selects one eligible account', () => {
+    const result = resolveQuickEntryAccount([{ id: 'only', currency: 'INR', type: 'savings', is_default: false }], 'INR');
+    expect(result.account?.id).toBe('only');
+  });
+
+  it('uses the default when multiple accounts are eligible', () => {
+    const result = resolveQuickEntryAccount([
+      { id: 'cash', currency: 'INR', type: 'cash', is_default: false },
+      { id: 'bank', currency: 'INR', type: 'savings', is_default: true },
+    ], 'INR');
+    expect(result.account?.id).toBe('bank');
+  });
+
+  it('requires a default when multiple accounts are eligible without one', () => {
+    const result = resolveQuickEntryAccount([
+      { id: 'cash', currency: 'INR', type: 'cash', is_default: false },
+      { id: 'bank', currency: 'INR', type: 'savings', is_default: false },
+    ], 'INR');
+    expect(result.status).toBe('needs_default');
   });
 });
