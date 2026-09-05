@@ -7,4 +7,7 @@ const bot=await api('getMe');
 const before=await api('getWebhookInfo');
 await api('setWebhook',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({url:`${appUrl}/api/telegram/webhook`,secret_token:secret,allowed_updates:['message','callback_query'],drop_pending_updates:false})});
 const after=await api('getWebhookInfo');
-console.log(JSON.stringify({bot:{id:bot.id,username:bot.username,is_bot:bot.is_bot},before:health(before),after:health(after)},null,2));
+const supabaseUrl=process.env.NEXT_PUBLIC_SUPABASE_URL,secretKey=process.env.SUPABASE_SECRET_KEY;
+let database={configured:Boolean(supabaseUrl&&secretKey)};
+if(supabaseUrl&&secretKey){const response=await fetch(`${supabaseUrl}/rest/v1/telegram_updates?select=telegram_update_id&limit=0`,{headers:{apikey:secretKey,authorization:`Bearer ${secretKey}`}});database={configured:true,status:response.status,ok:response.ok};if(!response.ok){const error=await response.json().catch(()=>({}));database.code=error.code||null;database.message=error.message||null}}
+console.log(JSON.stringify({bot:{id:bot.id,username:bot.username,is_bot:bot.is_bot},before:health(before),after:health(after),database},null,2));
