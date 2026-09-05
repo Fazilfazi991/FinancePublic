@@ -6,7 +6,7 @@ insert into public.telegram_link_tokens(user_id,token_hash,expires_at) values('5
 set local role service_role;set local request.jwt.claim.role='service_role';
 select is(public.consume_telegram_link_token('valid-hash',5001,6001,'tester'),'linked','valid token links account');
 select is(public.consume_telegram_link_token('valid-hash',5001,6001,'tester'),'invalid','used token is rejected');
-select is(public.consume_telegram_link_token('expired-hash',5002,6002,'tester2'),'invalid','expired token is rejected');
+select is(public.consume_telegram_link_token('expired-hash',5002,6002,'tester2'),'expired','expired token is identified for a helpful response');
 select is(public.consume_telegram_link_token('missing-hash',5003,6003,null),'invalid','invalid token is rejected');
 select throws_ok($$insert into public.telegram_connections(user_id,telegram_user_id,telegram_chat_id) values('50000000-0000-0000-0000-000000000001',5999,6999)$$,'23505','duplicate key value violates unique constraint "telegram_connection_user_active"','Finance account has one active connection');
 select throws_ok($$insert into public.telegram_connections(user_id,telegram_user_id,telegram_chat_id) values('50000000-0000-0000-0000-000000000002',5001,6999)$$,'23505','duplicate key value violates unique constraint "telegram_connection_telegram_active"','Telegram account has one active connection');

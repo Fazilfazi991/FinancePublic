@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { clearDemoWorkspace, isDemoId } from '@/lib/demo-data';
+import { isDemoId } from './demo-data';
 
 export interface Debt {
   id: string;
@@ -201,15 +201,18 @@ export const useFinanceStore = create<FinanceState>()(
       const state = get();
       const isEmpty = !state.accounts.length && !state.transactions.length && !state.debts.length && !state.goals.length && !state.expenses.length && !state.incomes.length && !state.projects.length;
       if (!isEmpty) return false;
-      const response=await fetch('/api/demo',{method:'POST'}); if(!response.ok)return false; location.reload();
+      const response=await fetch('/api/demo',{method:'POST'}); if(!response.ok)return false;
+      const workspaceResponse=await fetch('/api/workspace',{cache:'no-store'});if(!workspaceResponse.ok)return false;
+      const workspace=await workspaceResponse.json();
+      set({...workspace,demoMode:[...workspace.debts,...workspace.accounts,...workspace.transactions,...workspace.incomes,...workspace.goals,...workspace.expenses].some((item:{isDemo?:boolean})=>item.isDemo),loaded:true});
       return true;
     },
     removeDemoData: async () => {
       const response=await fetch('/api/demo',{method:'DELETE'});if(!response.ok)throw new Error('Unable to remove sample data.');
-      clearDemoWorkspace();set({accounts:[],transactions:[],debts:[],goals:[],expenses:[],incomes:[],demoMode:false});
+      set({accounts:[],transactions:[],debts:[],goals:[],expenses:[],incomes:[],demoMode:false});
     },
     resetDemoData: async () => {
-      if(!get().demoMode)return;const response=await fetch('/api/demo',{method:'PUT'});if(!response.ok)throw new Error('Unable to reset sample data.');location.reload();
+      if(!get().demoMode)return;const response=await fetch('/api/demo',{method:'PUT'});if(!response.ok)throw new Error('Unable to reset sample data.');const workspaceResponse=await fetch('/api/workspace',{cache:'no-store'});if(!workspaceResponse.ok)throw new Error('Unable to refresh sample data.');const workspace=await workspaceResponse.json();set({...workspace,demoMode:true,loaded:true});
     },
 
     setDebts: (debts) => set({ debts }),

@@ -1,0 +1,2 @@
+export const normalizeOtp=(value:string)=>value.replace(/\D/g,'').slice(0,6);
+export const friendlyOtpError=(message:string)=>{const value=message.toLowerCase();if(value.includes('rate')||value.includes('too many'))return 'Too many attempts. Please wait a little before trying again.';if(value.includes('expired')||value.includes('invalid')||value.includes('token'))return 'That code is incorrect or has expired. Request a new code and try again.';return 'We could not verify that code. Check your connection and try again.'};

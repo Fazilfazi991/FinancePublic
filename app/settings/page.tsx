@@ -107,7 +107,7 @@ export default function SettingsPage() {
             </button>
             {demoMode&&<><button onClick={resetDemoData} className="flex-1 py-4 bg-secondary text-foreground rounded-2xl font-bold hover:bg-secondary/80 transition-all">Reset sample data</button><button onClick={()=>{if(confirm('Remove only the fictional sample records?'))removeDemoData()}} className="flex-1 py-4 bg-destructive/10 text-destructive rounded-2xl font-bold hover:bg-destructive/20 transition-all">Remove sample data</button></>}
           </div>
-          {demoMode&&<p className="mt-3 text-sm text-muted-foreground">Sample data is stored only in this browser and is identified by demo-prefixed records.</p>}
+          {demoMode&&<p className="mt-3 text-sm text-muted-foreground">Sample records are securely stored in your Finance workspace and remain separate from real finance records.</p>}
         </div>
       </div>
     </div>
