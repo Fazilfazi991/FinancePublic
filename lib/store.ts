@@ -115,6 +115,7 @@ interface FinanceState {
     name: string;
     accentColor: string;
     onboarded: boolean;
+    onboarding: { currentStep:number; debtCompleted:boolean; incomeCompleted:boolean; expensesCompleted:boolean; payoffSeen:boolean };
     currencySetupComplete: boolean;
     migrated_real_data: boolean;
   };
@@ -193,6 +194,7 @@ export const useFinanceStore = create<FinanceState>()(
       name: 'User',
       accentColor: '#10b981',
       onboarded: false,
+      onboarding: { currentStep:1, debtCompleted:false, incomeCompleted:false, expensesCompleted:false, payoffSeen:false },
       currencySetupComplete: false,
       migrated_real_data: false,
     },

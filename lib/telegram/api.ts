@@ -7,4 +7,4 @@ export const sendMessage=(chatId:number,text:string,replyMarkup?:Record<string,u
 export const answerCallback=(id:string,text?:string)=>call('answerCallbackQuery',{callback_query_id:id,...(text?{text}:{})});
 export const editMessage=(chatId:number,messageId:number,text:string)=>call('editMessageText',{chat_id:chatId,message_id:messageId,text});
 export const draftKeyboard=(id:string,payment:boolean)=>({inline_keyboard:[[{text:payment?'Confirm Payment':'Confirm',callback_data:`qe_confirm:${id}`}],[{text:'Edit',callback_data:`qe_edit:${id}`},{text:'Cancel',callback_data:`qe_cancel:${id}`}]]});
-export const financeKeyboard=()=>({inline_keyboard:[[{text:'Open Finance',url:`${APP_URL}/telegram`}]]});
+export const financeKeyboard=()=>({inline_keyboard:[[{text:'Open ZeroDebt',url:`${APP_URL}/telegram`}]]});

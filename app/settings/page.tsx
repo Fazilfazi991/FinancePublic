@@ -6,6 +6,7 @@ import { motion } from "framer-motion";
 import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 import { SUPPORTED_CURRENCIES } from "@/lib/currency";
+import { InstallZeroDebt } from "@/components/install-zero-debt";
 
 export default function SettingsPage() {
   const { settings, setSettings, rates, demoMode, removeDemoData, resetDemoData } = useFinanceStore();
@@ -36,10 +37,11 @@ export default function SettingsPage() {
     <div className="space-y-8 max-w-3xl mx-auto">
       <div>
         <h1 className="text-3xl lg:text-4xl font-bold tracking-tight">Settings</h1>
-        <p className="text-muted-foreground mt-1">Personalize your Finance experience.</p>
+        <p className="text-muted-foreground mt-1">Personalize your ZeroDebt experience.</p>
       </div>
 
       <div className="space-y-6">
+        <InstallZeroDebt />
         {/* Profile Section */}
         <div className="glass p-8 rounded-[2.5rem]">
           <h3 className="text-lg font-bold mb-6 flex items-center gap-2">
@@ -94,11 +96,11 @@ export default function SettingsPage() {
           </div>
         </div>
 
-        {/* Data Management */}
+        {/* Sample data is isolated from real-data controls. */}
         <div className="glass p-8 rounded-[2.5rem]">
           <h3 className="text-lg font-bold mb-6 flex items-center gap-2">
             <Database className="w-5 h-5 text-destructive" />
-            Data Management
+            Sample Data
           </h3>
           <div className="flex flex-col sm:flex-row gap-4">
             <button 
@@ -109,7 +111,7 @@ export default function SettingsPage() {
             </button>
             {demoMode&&<><button onClick={resetDemoData} className="flex-1 py-4 bg-secondary text-foreground rounded-2xl font-bold hover:bg-secondary/80 transition-all">Reset sample data</button><button onClick={()=>{if(confirm('Remove only the fictional sample records?'))removeDemoData()}} className="flex-1 py-4 bg-destructive/10 text-destructive rounded-2xl font-bold hover:bg-destructive/20 transition-all">Remove sample data</button></>}
           </div>
-          {demoMode&&<p className="mt-3 text-sm text-muted-foreground">Sample records are securely stored in your Finance workspace and remain separate from real finance records.</p>}
+          {demoMode&&<p className="mt-3 text-sm text-muted-foreground">Sample records are securely stored in your ZeroDebt workspace and remain separate from real finance records.</p>}
         </div>
       </div>
     </div>

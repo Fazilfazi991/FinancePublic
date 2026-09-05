@@ -16,6 +16,9 @@ export const metadata: Metadata = {
   description: "Track your debts, understand your monthly payoff power, and know what to focus on next.",
   manifest: "/manifest.webmanifest",
   appleWebApp: { capable: true, title: "ZeroDebt", statusBarStyle: "default" },
+  alternates: { canonical: "/" },
+  openGraph: { title: "ZeroDebt — A clear path to debt freedom", description: "See your Freedom Number, know what to pay next, and track every step toward zero debt.", url: "/", siteName: "ZeroDebt", type: "website" },
+  icons: { icon: [{url:"/icon-192.png",sizes:"192x192",type:"image/png"}], apple: "/apple-touch-icon.png" },
 };
 
 export const viewport: Viewport = {
