@@ -8,6 +8,7 @@ export interface QuickEntryDraft {
   type: QuickEntryType; amount: number | null; currency: SupportedCurrency; description: string;
   category: string | null; date: string; debt_id: string | null; account_id: string | null;
   confidence: QuickEntryConfidence; needs_confirmation: boolean; warnings: string[]; raw_input: string;
+  source?: 'telegram_image'; input_type?: 'image'; payment_status?: string; reference_hash?: string;
 }
 export interface ParseQuickEntryOptions { today?: string; debts?: QuickEntryDebt[]; defaultAccountId?: string | null; baseCurrency?: SupportedCurrency }
 
