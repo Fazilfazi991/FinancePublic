@@ -13,4 +13,5 @@ describe('parseQuickEntry', () => {
   it('requires an account when none is configured',()=>expect(parseQuickEntry('fuel 500',{...options,defaultAccountId:null}).warnings.join(' ')).toContain('account'));
   it.each(['coffee 0','coffee -500','coffee nope'])('rejects zero, negative, or invalid amounts: %s', input=>expect(parseQuickEntry(input,options).amount).toBeNull());
   it('defaults dates to today',()=>expect(parseQuickEntry('fuel 500 today',options).date).toBe('2026-09-05'));
+  it('uses the saved profile currency supplied by the caller',()=>expect(parseQuickEntry('fuel 500',{...options,baseCurrency:'USD'}).currency).toBe('USD'));
 });

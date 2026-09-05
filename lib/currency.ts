@@ -10,3 +10,15 @@ export function isSupportedCurrency(value: unknown): value is SupportedCurrency 
 export function hasValidBaseCurrency(profile: CurrencyProfile): boolean {
   return isSupportedCurrency(profile?.base_currency);
 }
+
+export function getBaseCurrency(profile: CurrencyProfile): SupportedCurrency | null {
+  const value = profile?.base_currency;
+  return isSupportedCurrency(value) ? value.trim().toUpperCase() as SupportedCurrency : null;
+}
+
+export function findDefaultAccountForCurrency<T extends { currency: string; is_default?: boolean; isDefault?: boolean }>(
+  accounts: T[] | null | undefined,
+  currency: SupportedCurrency,
+): T | undefined {
+  return accounts?.find(account => (account.is_default ?? account.isDefault ?? false) && account.currency === currency);
+}

@@ -1,14 +1,15 @@
 import { EXPENSE_RULES, INCOME_RULES } from './rules';
+import type { SupportedCurrency } from '../currency';
 
 export type QuickEntryType = 'expense' | 'income' | 'debt_payment' | 'transfer' | 'unknown';
 export type QuickEntryConfidence = 'high' | 'medium' | 'low';
 export interface QuickEntryDebt { id: string; name: string }
 export interface QuickEntryDraft {
-  type: QuickEntryType; amount: number | null; currency: 'INR'; description: string;
+  type: QuickEntryType; amount: number | null; currency: SupportedCurrency; description: string;
   category: string | null; date: string; debt_id: string | null; account_id: string | null;
   confidence: QuickEntryConfidence; needs_confirmation: boolean; warnings: string[]; raw_input: string;
 }
-export interface ParseQuickEntryOptions { today?: string; debts?: QuickEntryDebt[]; defaultAccountId?: string | null }
+export interface ParseQuickEntryOptions { today?: string; debts?: QuickEntryDebt[]; defaultAccountId?: string | null; baseCurrency?: SupportedCurrency }
 
 const AMOUNT = /(?:₹\s*)?(-?\d[\d,]*(?:\.\d+)?)\s*(lakh|k)?\b/i;
 const normalize = (value: string) => value.toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
@@ -62,6 +63,6 @@ export function parseQuickEntry(rawInput: string, options: ParseQuickEntryOption
   const category = type === 'income' ? incomeCategory ?? 'Other' : type === 'expense' ? expenseCategory ?? 'Other' : type === 'debt_payment' ? 'Debt Payment' : null;
   const requiredResolved = amount !== null && type !== 'unknown' && Boolean(options.defaultAccountId) && (type !== 'debt_payment' || matchedDebts.length === 1);
   const confidence: QuickEntryConfidence = requiredResolved && (category !== 'Other' || type === 'debt_payment') ? 'high' : type !== 'unknown' && amount ? 'medium' : 'low';
-  return { type, amount, currency: 'INR', description, category, date, debt_id: matchedDebts.length === 1 ? matchedDebts[0].id : null,
+  return { type, amount, currency: options.baseCurrency ?? 'INR', description, category, date, debt_id: matchedDebts.length === 1 ? matchedDebts[0].id : null,
     account_id: options.defaultAccountId ?? null, confidence, needs_confirmation: true, warnings, raw_input: rawInput };
 }

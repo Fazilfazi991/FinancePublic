@@ -254,7 +254,7 @@ export const useFinanceStore = create<FinanceState>()(
 
     // Accounts
     addAccount: (acc) => {
-      set((state) => ({ accounts: [...state.accounts, acc] }));
+      set((state) => ({ accounts: [...state.accounts.map(item => acc.isDefault ? { ...item, isDefault: false } : item), acc] }));
       api.post('/api/accounts', acc);
     },
     deleteAccount: (id) => {
@@ -263,7 +263,7 @@ export const useFinanceStore = create<FinanceState>()(
     },
     updateAccount: (id, updatedAcc) => {
       const full = get().accounts.find(a => a.id === id);
-      set((state) => ({ accounts: state.accounts.map(a => a.id === id ? { ...a, ...updatedAcc } : a) }));
+      set((state) => ({ accounts: state.accounts.map(a => a.id === id ? { ...a, ...updatedAcc } : updatedAcc.isDefault ? { ...a, isDefault: false } : a) }));
       if (full && !isDemoId(id)) api.put(`/api/accounts/${id}`, { ...full, ...updatedAcc });
     },
 

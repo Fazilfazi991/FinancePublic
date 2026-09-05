@@ -21,14 +21,15 @@ interface AccountDialogProps {
 }
 
 export function AccountDialog({ children, account }: AccountDialogProps) {
-  const { addAccount, setAccounts, accounts, rates } = useFinanceStore();
+  const { addAccount, updateAccount, rates, settings } = useFinanceStore();
   const [open, setOpen] = React.useState(false);
   const [name, setName] = React.useState(account?.name || "");
   const [institution, setInstitution] = React.useState(account?.institution || "");
   const [type, setType] = React.useState(account?.type || "savings");
-  const [currency, setCurrency] = React.useState(account?.currency || "INR");
+  const [currency, setCurrency] = React.useState(account?.currency || settings.currency || "INR");
   const [balance, setBalance] = React.useState(account?.openingBalance?.toString() || "");
   const [color, setColor] = React.useState(account?.color || "#10b981");
+  const [isDefault, setIsDefault] = React.useState(account?.isDefault || false);
 
   React.useEffect(() => {
     if (account) {
@@ -38,6 +39,7 @@ export function AccountDialog({ children, account }: AccountDialogProps) {
       setCurrency(account.currency);
       setBalance(account.openingBalance.toString());
       setColor(account.color);
+      setIsDefault(Boolean(account.isDefault));
     }
   }, [account]);
 
@@ -46,16 +48,15 @@ export function AccountDialog({ children, account }: AccountDialogProps) {
     if (!name || !institution || !balance) return;
 
     if (account) {
-      const updated = accounts.map(a => a.id === account.id ? {
-        ...account,
+      updateAccount(account.id, {
         name,
         institution,
         type,
         currency,
         openingBalance: parseFloat(balance),
         color,
-      } : a);
-      setAccounts(updated);
+        isDefault,
+      });
     } else {
       addAccount({
         id: crypto.randomUUID(),
@@ -65,7 +66,8 @@ export function AccountDialog({ children, account }: AccountDialogProps) {
         currency,
         openingBalance: parseFloat(balance),
         color,
-        createdAt: new Date().toISOString()
+        createdAt: new Date().toISOString(),
+        isDefault,
       });
     }
 
@@ -113,6 +115,11 @@ export function AccountDialog({ children, account }: AccountDialogProps) {
               />
             </div>
           </div>
+
+          <label className="flex min-h-12 items-center gap-3 rounded-xl bg-secondary/50 px-4 text-sm font-medium">
+            <input type="checkbox" checked={isDefault} onChange={event => setIsDefault(event.target.checked)} className="h-5 w-5 accent-primary" />
+            Use as my default account for Quick Entry
+          </label>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-2">

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { hasValidBaseCurrency, isSupportedCurrency } from './currency';
+import { findDefaultAccountForCurrency, getBaseCurrency, hasValidBaseCurrency, isSupportedCurrency } from './currency';
 
 describe('base currency setup', () => {
   it.each(['INR', 'USD', 'AED', 'EUR'])('treats supported %s profiles as complete', base_currency => {
@@ -17,5 +17,18 @@ describe('base currency setup', () => {
   it('normalizes supported codes without accepting unknown codes', () => {
     expect(isSupportedCurrency(' usd ')).toBe(true);
     expect(isSupportedCurrency('XYZ')).toBe(false);
+  });
+
+  it('returns the normalized persisted currency', () => {
+    expect(getBaseCurrency({ base_currency: ' usd ' })).toBe('USD');
+  });
+
+  it('requires a default account in the profile base currency', () => {
+    const accounts = [
+      { id: 'inr', currency: 'INR', is_default: false },
+      { id: 'usd', currency: 'USD', is_default: true },
+    ];
+    expect(findDefaultAccountForCurrency(accounts, 'USD')?.id).toBe('usd');
+    expect(findDefaultAccountForCurrency(accounts, 'INR')).toBeUndefined();
   });
 });
