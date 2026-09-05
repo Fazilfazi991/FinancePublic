@@ -30,9 +30,7 @@ export function ClientProvider({ children }: { children: React.ReactNode }) {
     loadData();
   }, [hydrate, pathname]);
 
-  return (
-    <div className={mounted ? "opacity-100 transition-opacity duration-300" : "opacity-0"}>
-      {children}
-    </div>
-  );
+  if (!mounted) return <div role="status" aria-label="Loading your finance profile" className="grid min-h-dvh place-items-center text-sm text-muted-foreground">Loading Finance…</div>;
+
+  return <div className="opacity-100 transition-opacity duration-300">{children}</div>;
 }

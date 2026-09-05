@@ -5,6 +5,7 @@ import { User, Database, Globe } from "lucide-react";
 import { motion } from "framer-motion";
 import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
+import { SUPPORTED_CURRENCIES } from "@/lib/currency";
 
 export default function SettingsPage() {
   const { settings, setSettings, rates, demoMode, removeDemoData, resetDemoData } = useFinanceStore();
@@ -17,7 +18,7 @@ export default function SettingsPage() {
   if (!mounted) return null;
 
   const handleUpdate = (key: string, value: any) => {
-    setSettings({ [key]: value });
+    setSettings(key === 'currency' ? { currency: value, currencySetupComplete: true } : { [key]: value });
   };
 
   const handleExportData = () => {
@@ -72,7 +73,8 @@ export default function SettingsPage() {
                 onChange={(e) => handleUpdate('currency', e.target.value)}
                 className="w-full bg-secondary/50 border border-border/50 rounded-2xl px-6 py-4 outline-none focus:ring-2 focus:ring-primary/20 transition-all appearance-none"
               >
-                {Object.keys(rates.rates).map(c => (
+                {!settings.currencySetupComplete&&<option value="" disabled>Select default currency</option>}
+                {SUPPORTED_CURRENCIES.filter(c => c in rates.rates).map(c => (
                   <option key={c} value={c}>{c === 'INR' ? 'INR — Indian Rupee' : c}</option>
                 ))}
               </select>
