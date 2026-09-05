@@ -9,7 +9,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { findDefaultAccountForCurrency, isSupportedCurrency } from '@/lib/currency';
+import { findDefaultAccountForCurrency, getBaseCurrency } from '@/lib/currency';
 
 type Step = 'input' | 'review' | 'success';
 export function QuickEntryDialog({open,onOpenChange}:{open:boolean;onOpenChange:(open:boolean)=>void}) {
@@ -17,7 +17,7 @@ export function QuickEntryDialog({open,onOpenChange}:{open:boolean;onOpenChange:
   const [step,setStep]=React.useState<Step>('input'),[raw,setRaw]=React.useState(''),[draft,setDraft]=React.useState<QuickEntryDraft|null>(null);
   const [pending,setPending]=React.useState(false),[error,setError]=React.useState(''),[message,setMessage]=React.useState('');
   const inputRef=React.useRef<HTMLInputElement>(null);
-  const baseCurrency=isSupportedCurrency(settings.currency)?settings.currency.trim().toUpperCase():null;
+  const baseCurrency=getBaseCurrency({base_currency:settings.currency});
   const paymentAccounts=accounts.filter(account=>account.type!=='credit'&&account.type!=='receivable'&&account.currency===baseCurrency);
   React.useEffect(()=>{if(open){setStep('input');setRaw('');setDraft(null);setError('');setMessage('');setTimeout(()=>inputRef.current?.focus(),100)}},[open]);
   const parse=()=>{if(!baseCurrency){setError('Set your base currency in Settings before using Quick Entry.');return}const next=parseQuickEntry(raw,{debts,baseCurrency,defaultAccountId:findDefaultAccountForCurrency(paymentAccounts,baseCurrency)?.id??null});setDraft(next);setStep('review');setError('')};
