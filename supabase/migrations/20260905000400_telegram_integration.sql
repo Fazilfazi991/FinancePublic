@@ -1,0 +1,27 @@
+alter table public.transactions drop constraint if exists transactions_source_check;
+alter table public.transactions add constraint transactions_source_check check(source in ('manual','quick_entry','telegram','debt_payment','demo'));
+
+create table public.telegram_connections(id uuid primary key default gen_random_uuid(),user_id uuid not null references auth.users(id) on delete cascade,telegram_user_id bigint not null,telegram_chat_id bigint not null,telegram_username text,created_at timestamptz not null default now(),updated_at timestamptz not null default now(),revoked_at timestamptz);
+create unique index telegram_connection_user_active on public.telegram_connections(user_id) where revoked_at is null;
+create unique index telegram_connection_telegram_active on public.telegram_connections(telegram_user_id) where revoked_at is null;
+create index telegram_connection_chat on public.telegram_connections(telegram_chat_id) where revoked_at is null;
+create table public.telegram_link_tokens(id uuid primary key default gen_random_uuid(),user_id uuid not null references auth.users(id) on delete cascade,token_hash text not null unique,expires_at timestamptz not null,used_at timestamptz,created_at timestamptz not null default now());
+create index telegram_link_token_user on public.telegram_link_tokens(user_id,expires_at desc);
+create table public.telegram_drafts(id uuid primary key default gen_random_uuid(),user_id uuid not null references auth.users(id) on delete cascade,telegram_chat_id bigint not null,telegram_update_id bigint not null,raw_input text,draft jsonb not null,status text not null check(status in ('pending','processing','confirmed','cancelled','expired')),expires_at timestamptz not null,created_at timestamptz not null default now(),confirmed_at timestamptz,unique(telegram_chat_id,telegram_update_id));
+create index telegram_draft_pending on public.telegram_drafts(telegram_chat_id,expires_at) where status='pending';
+create table public.telegram_updates(telegram_update_id bigint primary key,telegram_user_id bigint not null,created_at timestamptz not null default now());
+create index telegram_updates_rate on public.telegram_updates(telegram_user_id,created_at desc);
+
+alter table public.telegram_connections enable row level security;alter table public.telegram_link_tokens enable row level security;alter table public.telegram_drafts enable row level security;alter table public.telegram_updates enable row level security;
+revoke all on public.telegram_connections,public.telegram_link_tokens,public.telegram_drafts,public.telegram_updates from anon;
+grant select,update on public.telegram_connections to authenticated;grant select,insert,delete on public.telegram_link_tokens to authenticated;
+create policy telegram_connections_select_own on public.telegram_connections for select to authenticated using((select auth.uid())=user_id);
+create policy telegram_connections_update_own on public.telegram_connections for update to authenticated using((select auth.uid())=user_id) with check((select auth.uid())=user_id);
+create policy telegram_link_tokens_select_own on public.telegram_link_tokens for select to authenticated using((select auth.uid())=user_id);
+create policy telegram_link_tokens_insert_own on public.telegram_link_tokens for insert to authenticated with check((select auth.uid())=user_id);
+create policy telegram_link_tokens_delete_own on public.telegram_link_tokens for delete to authenticated using((select auth.uid())=user_id);
+
+create function public.consume_telegram_link_token(p_token_hash text,p_telegram_user_id bigint,p_telegram_chat_id bigint,p_telegram_username text default null) returns text language plpgsql security definer set search_path='' as $$declare link public.telegram_link_tokens;begin if auth.role()<>'service_role' then raise exception 'forbidden' using errcode='42501';end if;select * into link from public.telegram_link_tokens where token_hash=p_token_hash and used_at is null and expires_at>now() for update;if not found then return 'invalid';end if;update public.telegram_link_tokens set used_at=now() where id=link.id;if exists(select 1 from public.telegram_connections where revoked_at is null and (user_id=link.user_id or telegram_user_id=p_telegram_user_id)) then return 'already_linked';end if;insert into public.telegram_connections(user_id,telegram_user_id,telegram_chat_id,telegram_username) values(link.user_id,p_telegram_user_id,p_telegram_chat_id,left(p_telegram_username,100));return 'linked';end$$;
+revoke all on function public.consume_telegram_link_token(text,bigint,bigint,text) from public,anon,authenticated;grant execute on function public.consume_telegram_link_token(text,bigint,bigint,text) to service_role;
+create function public.record_telegram_debt_payment(p_user_id uuid,p_debt_id uuid,p_account_id uuid,p_amount numeric,p_payment_date date,p_notes text,p_idempotency_key uuid) returns jsonb language plpgsql security definer set search_path='' as $$begin if auth.role()<>'service_role' then raise exception 'forbidden' using errcode='42501';end if;perform set_config('request.jwt.claim.sub',p_user_id::text,true);return public.record_debt_payment(p_debt_id,p_account_id,p_amount,p_payment_date,p_notes,p_idempotency_key);end$$;
+revoke all on function public.record_telegram_debt_payment(uuid,uuid,uuid,numeric,date,text,uuid) from public,anon,authenticated;grant execute on function public.record_telegram_debt_payment(uuid,uuid,uuid,numeric,date,text,uuid) to service_role;
