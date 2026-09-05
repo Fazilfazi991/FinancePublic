@@ -5,6 +5,7 @@ const api=async(method,options)=>{const response=await fetch(`https://api.telegr
 const health=info=>({url:info.url||'',pending_update_count:info.pending_update_count??0,last_error_message:info.last_error_message||null});
 const bot=await api('getMe');
 const before=await api('getWebhookInfo');
+if(before.pending_update_count===0&&before.last_error_message)await api('deleteWebhook',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({drop_pending_updates:false})});
 await api('setWebhook',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({url:`${appUrl}/api/telegram/webhook`,secret_token:secret,allowed_updates:['message','callback_query'],drop_pending_updates:false})});
 const after=await api('getWebhookInfo');
 const supabaseUrl=process.env.NEXT_PUBLIC_SUPABASE_URL,secretKey=process.env.SUPABASE_SECRET_KEY;
