@@ -38,15 +38,21 @@ interface AddTransactionDialogProps {
   children?: React.ReactNode;
   initialType?: 'income' | 'expense' | 'transfer';
   initialStreamId?: string;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
 }
 
 export function AddTransactionDialog({ 
   children, 
   initialType = 'expense',
-  initialStreamId = "" 
+  initialStreamId = "",
+  open: controlledOpen,
+  onOpenChange,
 }: AddTransactionDialogProps) {
   const { accounts, incomes, debts, goals, addTransaction, updateDebt, updateGoal, settings } = useFinanceStore();
-  const [open, setOpen] = React.useState(false);
+  const [internalOpen, setInternalOpen] = React.useState(false);
+  const open = controlledOpen ?? internalOpen;
+  const setOpen = onOpenChange ?? setInternalOpen;
   const [type, setType] = React.useState<'income' | 'expense' | 'transfer'>(initialType);
   const [amount, setAmount] = React.useState("");
   const [accountId, setAccountId] = React.useState("");
@@ -150,13 +156,13 @@ export function AddTransactionDialog({
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
+      {children && <DialogTrigger asChild>
         {children || (
           <Button className="gap-2 rounded-xl">
             <Plus className="w-4 h-4" /> Add Transaction
           </Button>
         )}
-      </DialogTrigger>
+      </DialogTrigger>}
       <DialogContent className="max-h-[92dvh] overflow-y-auto border-border bg-card sm:max-w-[460px] sm:rounded-2xl max-sm:top-auto max-sm:bottom-0 max-sm:translate-y-0 max-sm:rounded-b-none max-sm:rounded-t-3xl">
         <DialogHeader>
           <DialogTitle className="text-xl font-bold">New Transaction</DialogTitle>

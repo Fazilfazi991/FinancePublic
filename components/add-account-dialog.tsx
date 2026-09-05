@@ -18,11 +18,15 @@ import { Plus } from "lucide-react";
 interface AccountDialogProps {
   children?: React.ReactNode;
   account?: Account;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
 }
 
-export function AccountDialog({ children, account }: AccountDialogProps) {
+export function AccountDialog({ children, account, open: controlledOpen, onOpenChange }: AccountDialogProps) {
   const { addAccount, updateAccount, rates, settings } = useFinanceStore();
-  const [open, setOpen] = React.useState(false);
+  const [internalOpen, setInternalOpen] = React.useState(false);
+  const open = controlledOpen ?? internalOpen;
+  const setOpen = onOpenChange ?? setInternalOpen;
   const [name, setName] = React.useState(account?.name || "");
   const [institution, setInstitution] = React.useState(account?.institution || "");
   const [type, setType] = React.useState(account?.type || "savings");
@@ -81,13 +85,13 @@ export function AccountDialog({ children, account }: AccountDialogProps) {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
+      {children && <DialogTrigger asChild>
         {children || (
           <Button className="gap-2 rounded-xl">
             <Plus className="w-4 h-4" /> Add Account
           </Button>
         )}
-      </DialogTrigger>
+      </DialogTrigger>}
       <DialogContent className="sm:max-w-[425px] glass border-border/50">
         <DialogHeader>
           <DialogTitle className="text-xl font-bold">{account ? "Edit Account" : "New Account"}</DialogTitle>

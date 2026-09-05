@@ -60,3 +60,14 @@ export const getAccountBalance = (accId: string, accounts: any[], transactions: 
   });
   return balance;
 };
+
+const LIQUID_ACCOUNT_TYPES = new Set(['current', 'savings', 'cash']);
+
+export function calculateAvailableBalance(accounts: any[], transactions: any[], settings: any) {
+  const eligibleAccounts = accounts.filter(account => LIQUID_ACCOUNT_TYPES.has(account.type));
+  const balance = eligibleAccounts.reduce(
+    (total, account) => total + getAccountBalance(account.id, accounts, transactions, settings),
+    0,
+  );
+  return { balance: Math.max(0, balance), accountCount: eligibleAccounts.length };
+}

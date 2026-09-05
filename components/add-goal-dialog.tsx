@@ -14,9 +14,11 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Plus } from "lucide-react";
 
-export function AddGoalDialog({ children }: { children?: React.ReactNode }) {
+export function AddGoalDialog({ children, open: controlledOpen, onOpenChange }: { children?: React.ReactNode; open?: boolean; onOpenChange?: (open:boolean)=>void }) {
   const { addGoal } = useFinanceStore();
-  const [open, setOpen] = React.useState(false);
+  const [internalOpen, setInternalOpen] = React.useState(false);
+  const open = controlledOpen ?? internalOpen;
+  const setOpen = onOpenChange ?? setInternalOpen;
   const [name, setName] = React.useState("");
   const [target, setTarget] = React.useState("0");
   const [saved, setSaved] = React.useState("0");
@@ -58,13 +60,13 @@ export function AddGoalDialog({ children }: { children?: React.ReactNode }) {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
+      {children && <DialogTrigger asChild>
         {children || (
           <Button className="gap-2 rounded-xl">
             <Plus className="w-4 h-4" /> New Goal
           </Button>
         )}
-      </DialogTrigger>
+      </DialogTrigger>}
       <DialogContent className="sm:max-w-[425px] glass border-border/50">
         <DialogHeader>
           <DialogTitle className="text-xl font-bold">New Goal</DialogTitle>
