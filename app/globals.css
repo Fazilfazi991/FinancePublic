@@ -83,6 +83,12 @@
   .safe-bottom { padding-bottom: max(0.75rem, env(safe-area-inset-bottom)); }
   .safe-top { padding-top: env(safe-area-inset-top); }
   .tap-target { min-height: 44px; min-width: 44px; }
+  .tap-target:not(:disabled) { touch-action: manipulation; transition: transform 120ms ease, opacity 120ms ease; }
+  .tap-target:not(:disabled):active { transform: scale(.98); }
+  @media (prefers-reduced-motion: reduce) { .tap-target { transition: none !important; } }
+  @media (max-width: 639px) {
+    .bottom-sheet { left: 0 !important; right: 0 !important; bottom: 0 !important; top: auto !important; width: 100% !important; max-width: none !important; transform: none !important; border-radius: 1.5rem 1.5rem 0 0 !important; padding-bottom: max(1.5rem, env(safe-area-inset-bottom)) !important; }
+  }
   .app-main:has(.landing-shell), .app-main:has(.onboarding-shell) { padding-top: 0; padding-bottom: 0; }
   ::selection { background: hsl(var(--primary) / .22); }
 }

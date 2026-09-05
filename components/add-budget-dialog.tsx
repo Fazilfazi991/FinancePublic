@@ -1,101 +1,11 @@
 "use client";
-
 import * as React from "react";
-import { useFinanceStore, Expense } from "@/lib/store";
-import { 
-  Dialog, 
-  DialogContent, 
-  DialogHeader, 
-  DialogTitle, 
-  DialogTrigger,
-  DialogFooter
-} from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Plus } from "lucide-react";
-
-export function AddBudgetDialog({ children }: { children?: React.ReactNode }) {
-  const { setExpenses, expenses } = useFinanceStore();
-  const [open, setOpen] = React.useState(false);
-  const [name, setName] = React.useState("");
-  const [budgeted, setBudgeted] = React.useState("");
-  const [category, setCategory] = React.useState("");
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!name || !budgeted || !category) return;
-
-    const newExpense: Expense = {
-      id: crypto.randomUUID(),
-      name,
-      budgeted: parseFloat(budgeted),
-      spent: 0,
-      category,
-    };
-
-    setExpenses([...expenses, newExpense]);
-    setOpen(false);
-    // Reset
-    setName("");
-    setBudgeted("");
-    setCategory("");
-  };
-
-  return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        {children || (
-          <Button className="gap-2 rounded-xl">
-            <Plus className="w-4 h-4" /> Add Category
-          </Button>
-        )}
-      </DialogTrigger>
-      <DialogContent className="sm:max-w-[425px] glass border-border/50">
-        <DialogHeader>
-          <DialogTitle className="text-xl font-bold">Add Budget Category</DialogTitle>
-        </DialogHeader>
-        <form onSubmit={handleSubmit} className="space-y-4 py-4">
-          <div className="space-y-2">
-            <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest ml-1">Category Name</label>
-            <Input 
-              placeholder="Housing, Groceries, Entertainment..." 
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              className="bg-secondary/50 border-border/50 rounded-xl"
-              required
-            />
-          </div>
-
-          <div className="space-y-2">
-            <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest ml-1">System Category (for tracking)</label>
-            <Input 
-              placeholder="Food, Rent, Bills..." 
-              value={category}
-              onChange={(e) => setCategory(e.target.value)}
-              className="bg-secondary/50 border-border/50 rounded-xl"
-              required
-            />
-          </div>
-
-          <div className="space-y-2">
-            <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest ml-1">Monthly Budget Limit</label>
-            <Input 
-              type="number" 
-              placeholder="0.00" 
-              value={budgeted}
-              onChange={(e) => setBudgeted(e.target.value)}
-              className="bg-secondary/50 border-border/50 rounded-xl"
-              required
-            />
-          </div>
-
-          <DialogFooter className="pt-4">
-            <Button type="submit" className="w-full bg-primary text-primary-foreground font-bold py-6 rounded-2xl shadow-lg shadow-primary/20">
-              Create Budget
-            </Button>
-          </DialogFooter>
-        </form>
-      </DialogContent>
-    </Dialog>
-  );
+import {useFinanceStore,type Expense} from "@/lib/store";
+import {Dialog,DialogContent,DialogHeader,DialogTitle,DialogTrigger,DialogFooter} from "@/components/ui/dialog";
+import {Button} from "@/components/ui/button";import {Input} from "@/components/ui/input";import {Plus} from "lucide-react";
+export function AddBudgetDialog({children,onSaved}:{children?:React.ReactNode;onSaved?:()=>void}){
+ const[open,setOpen]=React.useState(false),[name,setName]=React.useState(""),[budgeted,setBudgeted]=React.useState(""),[category,setCategory]=React.useState(""),[saving,setSaving]=React.useState(false),[error,setError]=React.useState("");
+ async function handleSubmit(e:React.FormEvent){e.preventDefault();const amount=Number(budgeted);if(!name.trim()||!category.trim()||!Number.isFinite(amount)||amount<=0){setError("Complete all fields and enter an amount greater than zero.");return}setSaving(true);setError("");try{const input={name:name.trim(),budgeted:amount,spent:0,category:category.trim()};const response=await fetch('/api/expenses',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(input)});if(!response.ok)throw new Error();const row=await response.json();const expense:Expense={id:row.id,name:row.name??input.name,budgeted:Number(row.budgeted??amount),spent:Number(row.spent??0),category:row.category??input.category};useFinanceStore.setState(s=>({expenses:[...s.expenses,expense]}));setOpen(false);setName('');setBudgeted('');setCategory('');onSaved?.()}catch{setError("We could not save this expense. Check your connection and try again.")}finally{setSaving(false)}}
+ return <Dialog open={open} onOpenChange={v=>{if(!saving)setOpen(v)}}><DialogTrigger asChild>{children||<Button type="button" className="gap-2 rounded-xl"><Plus className="h-4 w-4"/>Add Category</Button>}</DialogTrigger><DialogContent className="bottom-sheet max-h-[90dvh] overflow-y-auto sm:max-w-[425px]"><DialogHeader><DialogTitle>Add essential expense</DialogTitle></DialogHeader><form onSubmit={handleSubmit} className="space-y-4 py-3"><Field id="budget-name" label="Expense name"><Input id="budget-name" value={name} onChange={e=>setName(e.target.value)} className="text-base" placeholder="Housing, groceries, utilities…" required/></Field><Field id="budget-category" label="Category"><Input id="budget-category" value={category} onChange={e=>setCategory(e.target.value)} className="text-base" placeholder="Housing, Food, Bills…" required/></Field><Field id="budget-amount" label="Monthly amount"><Input id="budget-amount" type="number" inputMode="decimal" min="0.01" step="0.01" value={budgeted} onChange={e=>setBudgeted(e.target.value)} className="text-base" placeholder="0" required/></Field>{error&&<p role="alert" className="rounded-xl bg-destructive/10 p-3 text-sm text-destructive">{error}</p>}<DialogFooter><Button type="submit" disabled={saving} className="tap-target w-full rounded-xl">{saving?'Saving expense…':'Save expense'}</Button></DialogFooter></form></DialogContent></Dialog>
 }
+function Field({id,label,children}:{id:string;label:string;children:React.ReactNode}){return <div className="space-y-2"><label htmlFor={id} className="text-sm font-semibold">{label}</label>{children}</div>}
