@@ -83,5 +83,6 @@
   .safe-bottom { padding-bottom: max(0.75rem, env(safe-area-inset-bottom)); }
   .safe-top { padding-top: env(safe-area-inset-top); }
   .tap-target { min-height: 44px; min-width: 44px; }
+  .app-main:has(.landing-shell), .app-main:has(.onboarding-shell) { padding-top: 0; padding-bottom: 0; }
   ::selection { background: hsl(var(--primary) / .22); }
 }

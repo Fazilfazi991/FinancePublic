@@ -15,12 +15,13 @@ export async function updateSession(request: NextRequest) {
   }});
   const { data: { user } } = await supabase.auth.getUser();
   const path = request.nextUrl.pathname;
-  const publicPath = path.startsWith('/auth');
+  const publicPath = path === '/' || path.startsWith('/auth') || path === '/manifest.webmanifest';
   if (!user && !publicPath && !path.startsWith('/api/')) {
     const url = request.nextUrl.clone(); url.pathname = '/auth'; url.searchParams.set('next', path);
     return NextResponse.redirect(url);
   }
-  if (user && path === '/auth') return NextResponse.redirect(new URL('/', request.url));
+  if (user && path === '/') return NextResponse.redirect(new URL('/overview', request.url));
+  if (user && path === '/auth') return NextResponse.redirect(new URL('/overview', request.url));
   if (path.startsWith('/api/')) response.headers.set('Cache-Control','private, no-store, max-age=0');
   return response;
 }
