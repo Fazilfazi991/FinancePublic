@@ -153,7 +153,7 @@ export default function GoalsPage() {
     
     const diff = actualProgress - expectedProgress;
     
-    if (diff > 10) return { label: 'Ahead', color: 'bg-purple-500/20 text-purple-400' };
+    if (diff > 10) return { label: 'Ahead', color: 'bg-primary/15 text-primary' };
     if (diff >= 0) return { label: 'On track', color: 'bg-emerald-500/20 text-emerald-400' };
     if (diff > -10) return { label: 'Slightly behind', color: 'bg-amber-500/20 text-amber-400' };
     return { label: 'Behind', color: 'bg-destructive/20 text-destructive' };
@@ -192,12 +192,12 @@ export default function GoalsPage() {
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: index * 0.1 }}
-              className="glass p-8 rounded-[2.5rem] relative group border border-white/5 flex flex-col"
+              className="mobile-card relative flex flex-col p-5 sm:p-6"
             >
               <div className="flex justify-between items-start mb-6">
                 <div className={cn(
                   "w-14 h-14 rounded-2xl flex items-center justify-center",
-                  isCompleted ? "bg-primary/10 text-primary" : "bg-purple-500/10 text-purple-500"
+                  "bg-primary/10 text-primary"
                 )}>
                   {isCompleted ? <Trophy className="w-7 h-7" /> : <Target className="w-7 h-7" />}
                 </div>
@@ -225,7 +225,7 @@ export default function GoalsPage() {
                     </button>
                   </div>
                   {goal.category && (
-                    <div className="flex items-center gap-1.5 px-3 py-1 bg-purple-500/10 rounded-full text-[10px] font-bold text-purple-400 uppercase">
+                    <div className="flex items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1 text-[10px] font-bold uppercase text-primary">
                       <Tag className="w-3 h-3" />
                       {goal.category}
                     </div>
@@ -272,7 +272,7 @@ export default function GoalsPage() {
                     transition={{ duration: 1.5, ease: "easeOut" }}
                     className={cn(
                       "h-full rounded-full",
-                      isCompleted ? "bg-primary" : "bg-purple-500"
+                      "bg-primary"
                     )}
                   />
                 </div>
@@ -365,7 +365,7 @@ export default function GoalsPage() {
         })}
 
         {goals.length === 0 && (
-          <div className="col-span-full py-20 flex flex-col items-center justify-center text-center glass rounded-[2.5rem] border-dashed border-white/10">
+          <div className="mobile-card col-span-full flex flex-col items-center justify-center py-16 text-center">
             <Target className="w-12 h-12 text-muted-foreground mb-4" />
             <h3 className="text-lg font-semibold">What are you working toward?</h3>
             <p className="text-muted-foreground max-w-xs mx-auto mt-2">

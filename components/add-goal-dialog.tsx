@@ -1,149 +1,42 @@
 "use client";
 
 import * as React from "react";
-import { useFinanceStore } from "@/lib/store";
-import { 
-  Dialog, 
-  DialogContent, 
-  DialogHeader, 
-  DialogTitle, 
-  DialogTrigger,
-  DialogFooter
-} from "@/components/ui/dialog";
+import { useFinanceStore, type Goal } from "@/lib/store";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Plus } from "lucide-react";
+import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Check, Plus } from "lucide-react";
+
+export const GOAL_CATEGORIES = ["Emergency Fund", "Home", "Car", "Travel", "Education", "Family", "Business", "Health", "Other"] as const;
+const emptyForm = {name:"",category:"",customCategory:"",description:"",target:"",saved:"",deadline:""};
 
 export function AddGoalDialog({ children, open: controlledOpen, onOpenChange }: { children?: React.ReactNode; open?: boolean; onOpenChange?: (open:boolean)=>void }) {
-  const { addGoal } = useFinanceStore();
-  const [internalOpen, setInternalOpen] = React.useState(false);
-  const open = controlledOpen ?? internalOpen;
-  const setOpen = onOpenChange ?? setInternalOpen;
-  const [name, setName] = React.useState("");
-  const [target, setTarget] = React.useState("0");
-  const [saved, setSaved] = React.useState("0");
-  const [deadline, setDeadline] = React.useState("");
-  const [description, setDescription] = React.useState("");
-  const [category, setCategory] = React.useState("");
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!name) return;
-
-    const newGoal = {
-      id: crypto.randomUUID(),
-      name,
-      target: parseFloat(target) || 0,
-      saved: parseFloat(saved) || 0,
-      deadline: deadline || undefined,
-      description,
-      category,
-      manualProgress: parseFloat(target) === 0 ? 0 : undefined,
-      createdAt: new Date().toISOString(),
-      lastUpdated: new Date().toISOString(),
-      notes: "",
-      currentMilestone: 0,
-      totalMilestones: 0,
-      milestoneValue: 0
-    };
-
-    addGoal(newGoal);
-    setOpen(false);
-    // Reset
-    setName("");
-    setTarget("0");
-    setSaved("0");
-    setDeadline("");
-    setDescription("");
-    setCategory("");
-  };
-
-  return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      {children && <DialogTrigger asChild>
-        {children || (
-          <Button className="gap-2 rounded-xl">
-            <Plus className="w-4 h-4" /> New Goal
-          </Button>
-        )}
-      </DialogTrigger>}
-      <DialogContent className="finance-sheet sm:max-w-[425px] glass border-border/50 [&_input]:text-base [&_textarea]:text-base">
-        <DialogHeader>
-          <DialogTitle className="text-xl font-bold">New Goal</DialogTitle>
-        </DialogHeader>
-        <form onSubmit={handleSubmit} className="space-y-4 py-4">
-          <div className="space-y-2">
-            <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest ml-1">Goal Name</label>
-            <Input 
-              placeholder="Dream House, New Car..." 
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              className="bg-secondary/50 border-border/50 rounded-xl"
-              required
-            />
-          </div>
-
-          <div className="space-y-2">
-            <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest ml-1">Category</label>
-            <Input 
-              placeholder="Personal, Company..." 
-              value={category}
-              onChange={(e) => setCategory(e.target.value)}
-              className="bg-secondary/50 border-border/50 rounded-xl"
-            />
-          </div>
-
-          <div className="space-y-2">
-            <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest ml-1">Description</label>
-            <Input 
-              placeholder="Brief description..." 
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              className="bg-secondary/50 border-border/50 rounded-xl"
-            />
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest ml-1">Target Amount</label>
-              <Input 
-                type="number" 
-                placeholder="0.00" 
-                value={target}
-                onChange={(e) => setTarget(e.target.value)}
-                className="bg-secondary/50 border-border/50 rounded-xl"
-              />
-              <p className="text-[9px] text-muted-foreground italic">Use 0 for milestone goals</p>
-            </div>
-            <div className="space-y-2">
-              <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest ml-1">Already Saved</label>
-              <Input 
-                type="number" 
-                placeholder="0.00" 
-                value={saved}
-                onChange={(e) => setSaved(e.target.value)}
-                className="bg-secondary/50 border-border/50 rounded-xl"
-              />
-            </div>
-          </div>
-
-          <div className="space-y-2">
-            <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest ml-1">Target Deadline (Optional)</label>
-            <Input 
-              type="date" 
-              value={deadline}
-              onChange={(e) => setDeadline(e.target.value)}
-              className="bg-secondary/50 border-border/50 rounded-xl"
-            />
-          </div>
-
-          <DialogFooter className="sheet-action-footer pt-4">
-            <Button type="submit" className="w-full bg-purple-600 text-white font-bold py-6 rounded-2xl shadow-lg shadow-purple-600/20">
-              Set Goal
-            </Button>
-          </DialogFooter>
-        </form>
-      </DialogContent>
-    </Dialog>
-  );
+  const settings=useFinanceStore(state=>state.settings);
+  const [internalOpen,setInternalOpen]=React.useState(false),[form,setForm]=React.useState(emptyForm),[errors,setErrors]=React.useState<Record<string,string>>({}),[saving,setSaving]=React.useState(false),[savedMessage,setSavedMessage]=React.useState("");
+  const open=controlledOpen??internalOpen;
+  const setOpen=(next:boolean)=>{(onOpenChange??setInternalOpen)(next);if(!next){setForm(emptyForm);setErrors({});setSavedMessage("")}};
+  const update=(key:keyof typeof form,value:string)=>{setForm(current=>({...current,[key]:value}));setErrors(current=>({...current,[key]:""}))};
+  const validate=()=>{const next:Record<string,string>={},target=Number(form.target),saved=Number(form.saved||0);if(!form.name.trim())next.name='Enter a goal name.';if(!form.category)next.category='Choose a category.';if(!Number.isFinite(target)||target<=0)next.target='Enter a target amount greater than zero.';if(!Number.isFinite(saved)||saved<0)next.saved='Already saved cannot be negative.';else if(target>0&&saved>target)next.saved='Already saved cannot be more than the target.';setErrors(next);return Object.keys(next).length===0};
+  const handleSubmit=async(event:React.FormEvent)=>{event.preventDefault();if(!validate()||saving)return;setSaving(true);const category=form.category==='Other'?(form.customCategory.trim()||'Other'):form.category;try{const response=await fetch('/api/goals',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:form.name.trim(),target:Number(form.target),saved:Number(form.saved||0),deadline:form.deadline||null,description:form.description.trim(),category})});const result=await response.json();if(!response.ok)throw new Error(result?.error?.message??'The goal could not be created.');const goal:Goal={id:result.id,name:result.name,target:Number(result.target),saved:Number(result.saved??0),deadline:result.deadline??undefined,description:result.description??'',category:result.category??'',notes:result.notes??'',createdAt:result.created_at,lastUpdated:result.updated_at??result.created_at};useFinanceStore.setState(state=>({goals:[...state.goals,goal]}));setSavedMessage('Goal created');window.setTimeout(()=>setOpen(false),450)}catch(reason){setErrors({form:reason instanceof Error?reason.message:'The goal could not be created.'})}finally{setSaving(false)}};
+  const currency=settings.currency==='INR'?'₹':settings.currency;
+  return <Dialog open={open} onOpenChange={setOpen}>
+    <DialogTrigger asChild>{children??<Button className="tap-target gap-2 rounded-xl"><Plus className="h-4 w-4"/>New Goal</Button>}</DialogTrigger>
+    <DialogContent className="finance-sheet border-border bg-card sm:max-w-[440px] sm:rounded-2xl [&_input]:text-base [&_textarea]:text-base">
+      <DialogHeader><DialogTitle className="text-xl font-bold">New Goal</DialogTitle><DialogDescription>Create something worth working toward.</DialogDescription></DialogHeader>
+      <form onSubmit={handleSubmit} className="space-y-5 py-2" noValidate>
+        <GoalField id="goal-name" label="Goal name" error={errors.name}><Input id="goal-name" value={form.name} onChange={e=>update('name',e.target.value)} placeholder="Emergency Fund" autoComplete="off" className="min-h-12 rounded-xl bg-secondary/40" aria-invalid={!!errors.name}/></GoalField>
+        <GoalField id="goal-category" label="Category" error={errors.category}><Select value={form.category} onValueChange={value=>update('category',value)}><SelectTrigger id="goal-category" className="min-h-12 rounded-xl bg-secondary/40" aria-invalid={!!errors.category}><SelectValue placeholder="Choose a category"/></SelectTrigger><SelectContent>{GOAL_CATEGORIES.map(category=><SelectItem key={category} value={category} className="min-h-10">{category}</SelectItem>)}</SelectContent></Select>{form.category==='Other'&&<Input value={form.customCategory} onChange={e=>update('customCategory',e.target.value)} placeholder="Custom category" aria-label="Custom category" className="mt-2 min-h-12 rounded-xl bg-secondary/40"/>}</GoalField>
+        <GoalField id="goal-description" label="Description (optional)"><Textarea id="goal-description" value={form.description} onChange={e=>update('description',e.target.value)} placeholder="Why this goal matters" maxLength={300} className="min-h-20 rounded-xl bg-secondary/40"/></GoalField>
+        <GoalField id="goal-target" label="Target amount" error={errors.target}><div className="relative"><span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 font-semibold text-muted-foreground">{currency}</span><Input id="goal-target" type="number" inputMode="decimal" min="0.01" step="0.01" value={form.target} onChange={e=>update('target',e.target.value)} placeholder="3,00,000" className="min-h-12 rounded-xl bg-secondary/40 pl-9 tabular" aria-invalid={!!errors.target}/></div></GoalField>
+        <GoalField id="goal-saved" label="Already saved (optional)" error={errors.saved}><div className="relative"><span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">{currency}</span><Input id="goal-saved" type="number" inputMode="decimal" min="0" step="0.01" value={form.saved} onChange={e=>update('saved',e.target.value)} placeholder="0" className="min-h-12 rounded-xl bg-secondary/30 pl-9 tabular" aria-invalid={!!errors.saved}/></div></GoalField>
+        <GoalField id="goal-deadline" label="Target date (optional)"><Input id="goal-deadline" type="date" value={form.deadline} onChange={e=>update('deadline',e.target.value)} className="min-h-12 rounded-xl bg-secondary/40"/></GoalField>
+        {errors.form&&<p role="alert" className="text-sm text-destructive">{errors.form}</p>}{savedMessage&&<p role="status" className="flex items-center gap-2 text-sm font-medium text-primary"><Check className="h-4 w-4"/>{savedMessage}</p>}
+        <DialogFooter><Button type="submit" disabled={saving} className="tap-target min-h-12 w-full rounded-xl font-semibold active:scale-[.98]">{saving?'Creating…':'Create Goal'}</Button></DialogFooter>
+      </form>
+    </DialogContent>
+  </Dialog>;
 }
+
+function GoalField({id,label,error,children}:{id:string;label:string;error?:string;children:React.ReactNode}){return <div className="space-y-2"><label htmlFor={id} className="text-sm font-semibold">{label}</label>{children}{error&&<p role="alert" className="text-sm text-destructive">{error}</p>}</div>}

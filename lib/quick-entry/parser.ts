@@ -7,6 +7,7 @@ export interface QuickEntryDebt { id: string; name: string }
 export interface QuickEntryDraft {
   type: QuickEntryType; amount: number | null; currency: SupportedCurrency; description: string;
   category: string | null; date: string; debt_id: string | null; account_id: string | null;
+  notes?: string;
   confidence: QuickEntryConfidence; needs_confirmation: boolean; warnings: string[]; raw_input: string;
   source?: 'telegram_image'; input_type?: 'image'; payment_status?: string; reference_hash?: string;
 }
