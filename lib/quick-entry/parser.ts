@@ -22,7 +22,7 @@ const previousDay = (iso: string) => {
   const date = new Date(`${iso}T12:00:00Z`); date.setUTCDate(date.getUTCDate() - 1); return date.toISOString().slice(0, 10);
 };
 const categoryFor = (text: string, rules: ReadonlyArray<[string, readonly string[]]>) =>
-  rules.find(([, words]) => words.some(word => text.includes(word)))?.[0] ?? null;
+  rules.find(([, words]) => words.some(word => (` ${text} `).includes(` ${normalize(word)} `)))?.[0] ?? null;
 
 export function parseQuickEntry(rawInput: string, options: ParseQuickEntryOptions = {}): QuickEntryDraft {
   const raw = rawInput.trim();

@@ -7,18 +7,18 @@ export const EXPENSE_CATEGORIES = [
 export const INCOME_CATEGORIES = ['Salary', 'Freelance', 'Business', 'Bonus', 'Investment', 'Other'] as const;
 
 export const EXPENSE_RULES: ReadonlyArray<[string, readonly string[]]> = [
-  ['Food & Dining', ['biryani', 'lunch', 'dinner', 'breakfast', 'coffee', 'restaurant', 'food']],
-  ['Groceries', ['grocery', 'groceries', 'supermarket']],
-  ['Fuel', ['fuel', 'petrol', 'diesel']],
-  ['Transport', ['uber', 'taxi', 'metro', 'bus', 'transport']],
+  ['Food & Dining', ['biryani', 'biriyani', 'shawarma', 'burger', 'pizza', 'restaurant', 'cafe', 'coffee', 'tea', 'lunch', 'dinner', 'breakfast', 'snack', 'meal', 'food', 'juice', 'bakery', 'hotel food', 'takeaway', 'delivery', 'zomato', 'swiggy']],
+  ['Groceries', ['grocery', 'groceries', 'supermarket', 'vegetable', 'vegetables', 'fruit', 'fruits', 'milk']],
+  ['Fuel', ['gas station', 'fuel', 'petrol', 'diesel']],
+  ['Transport', ['uber', 'ola', 'taxi', 'metro', 'bus', 'train', 'parking', 'toll', 'ride', 'transport']],
   ['Housing', ['rent', 'housing']],
-  ['Bills & Utilities', ['electricity', 'utility', 'utilities', 'water bill', 'internet bill', 'phone bill']],
-  ['Shopping', ['shopping', 'clothes', 'clothing']],
+  ['Bills & Utilities', ['electricity', 'water bill', 'internet', 'wifi', 'mobile bill', 'phone bill', 'utility', 'utilities', 'gas bill']],
+  ['Subscriptions', ['youtube premium', 'google one', 'netflix', 'spotify', 'prime', 'subscription', 'icloud']],
+  ['Shopping', ['shopping', 'clothes', 'clothing', 'shirt', 'shoes', 'amazon', 'flipkart', 'myntra']],
   ['Entertainment', ['movie', 'cinema', 'entertainment']],
-  ['Health', ['doctor', 'medicine', 'medical', 'health']],
+  ['Health', ['doctor', 'hospital', 'medicine', 'pharmacy', 'clinic', 'medical', 'health']],
   ['Education', ['course', 'tuition', 'education']],
   ['Travel', ['flight', 'hotel', 'travel']],
-  ['Subscriptions', ['subscription', 'netflix', 'spotify']],
 ];
 
 export const INCOME_RULES: ReadonlyArray<[string, readonly string[]]> = [

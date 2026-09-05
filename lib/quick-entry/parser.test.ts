@@ -5,6 +5,15 @@ const options = { today: '2026-09-05', defaultAccountId: 'account-1', debts: [
 ] };
 describe('parseQuickEntry', () => {
   it.each([['biryani 500','Food & Dining'],['fuel 1200','Fuel'],['spent 500 on lunch','Food & Dining'],['paid 2500 electricity','Bills & Utilities'],['groceries 3200','Groceries'],['₹750 coffee','Food & Dining'],['2k shopping','Shopping']])('parses expense %s', (input, category) => { const d=parseQuickEntry(input,options); expect(d).toMatchObject({type:'expense',category,account_id:'account-1'}); expect(d.warnings.join(' ')).not.toContain('debt'); });
+  it.each([
+    ['Biriyani 500','Food & Dining'],['biryani 500','Food & Dining'],['shawarma 300','Food & Dining'],
+    ['coffee 120','Food & Dining'],['restaurant 1500','Food & Dining'],['grocery 300','Groceries'],
+    ['groceries 1200','Groceries'],['fuel 1000','Fuel'],['uber 500','Transport'],
+    ['electricity 2500','Bills & Utilities'],['netflix 649','Subscriptions'],['amazon 2000','Shopping'],
+    ['doctor 800','Health'],
+  ])('classifies everyday expense %s as %s', (input, category) => {
+    expect(parseQuickEntry(input,options)).toMatchObject({type:'expense',category});
+  });
   it.each([['salary 120000','Salary'],['received salary 120000','Salary'],['freelance 25000','Freelance'],['bonus 30000','Bonus']])('parses income %s', (input, category) => expect(parseQuickEntry(input,options)).toMatchObject({type:'income',category}));
   it.each([['paid 10000 credit card','credit',10000,'2026-09-05'],['credit card payment 8000','credit',8000,'2026-09-05'],['paid 5000 towards personal loan','personal',5000,'2026-09-05'],['paid 25000 gold loan yesterday','gold',25000,'2026-09-04']])('parses debt payment %s', (input,debt_id,amount,date) => expect(parseQuickEntry(input,options)).toMatchObject({type:'debt_payment',debt_id,amount,date}));
   it.each([['coffee 1,200',1200],['coffee ₹1,200',1200],['shopping 2k',2000],['shopping 2.5k',2500],['rent 1 lakh',100000],['rent 1.5 lakh',150000]])('parses amount %s', (input,amount) => expect(parseQuickEntry(input,options).amount).toBe(amount));
