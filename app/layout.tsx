@@ -5,10 +5,12 @@ import { SidebarNav } from "@/components/sidebar-nav";
 import { ClientProvider } from "@/components/client-provider";
 import { cn } from "@/lib/utils";
 import { ThemeManager } from "@/components/theme-manager";
+import { APP_URL } from "@/lib/app-url";
 
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(APP_URL),
   title: "Finance",
   description: "A clear, private view of your personal finances.",
 };

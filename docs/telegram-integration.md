@@ -15,7 +15,7 @@ Required Vercel variables:
 - `TELEGRAM_WEBHOOK_SECRET` — random secret accepted by Telegram's `secret_token` field
 - `TELEGRAM_BOT_USERNAME` — username without `@`
 
-Never prefix these with `NEXT_PUBLIC_` or commit their values. After adding them, redeploy and run `node scripts/configure-telegram-webhook.mjs` in an environment where the two Telegram secrets are present. It configures `https://finance-public-sigma.vercel.app/api/telegram/webhook` without printing either secret. There is deliberately no public webhook-administration endpoint.
+Never prefix secret values with `NEXT_PUBLIC_` or commit them. After adding them, redeploy and run `node scripts/configure-telegram-webhook.mjs` in an environment where the two Telegram secrets are present. It uses `NEXT_PUBLIC_APP_URL` (defaulting to `https://zorx.online`) and configures `/api/telegram/webhook` without printing either secret. There is deliberately no public webhook-administration endpoint.
 
 ## BotFather setup
 
