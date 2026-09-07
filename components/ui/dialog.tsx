@@ -2,7 +2,7 @@
 
 import * as React from "react"
 import * as DialogPrimitive from "@radix-ui/react-dialog"
-import { X } from "lucide-react"
+import { ArrowLeft, X } from "lucide-react"
 
 import { cn } from "@/lib/utils"
 
@@ -46,10 +46,11 @@ const DialogOverlay = React.forwardRef<
 ))
 DialogOverlay.displayName = DialogPrimitive.Overlay.displayName
 
+type DialogContentProps = React.ComponentPropsWithoutRef<typeof DialogPrimitive.Content> & { onBack?: () => void }
 const DialogContent = React.forwardRef<
   React.ElementRef<typeof DialogPrimitive.Content>,
-  React.ComponentPropsWithoutRef<typeof DialogPrimitive.Content>
->(({ className, children, style, ...props }, ref) => {
+  DialogContentProps
+>(({ className, children, style, onBack, ...props }, ref) => {
   const viewport = useVisualViewport()
   return <DialogPortal>
     <DialogOverlay />
@@ -62,10 +63,10 @@ const DialogContent = React.forwardRef<
       )}
       {...props}
     >
+      {onBack?<button type="button" onClick={onBack} aria-label="Go back" className="absolute left-4 top-4 z-10 grid h-8 w-8 place-items-center rounded-full text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground sm:hidden"><ArrowLeft className="h-4 w-4"/></button>:<DialogPrimitive.Close aria-label="Go back" className="absolute left-4 top-4 z-10 grid h-8 w-8 place-items-center rounded-full text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground sm:hidden"><ArrowLeft className="h-4 w-4"/></DialogPrimitive.Close>}
       {children}
-      <DialogPrimitive.Close className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground">
+      <DialogPrimitive.Close aria-label="Close" className="absolute right-4 top-4 z-10 grid h-8 w-8 place-items-center rounded-full opacity-70 ring-offset-background transition-opacity hover:bg-secondary hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:text-muted-foreground">
         <X className="h-4 w-4" />
-        <span className="sr-only">Close</span>
       </DialogPrimitive.Close>
     </DialogPrimitive.Content>
   </DialogPortal>
@@ -78,7 +79,7 @@ const DialogHeader = ({
 }: React.HTMLAttributes<HTMLDivElement>) => (
   <div
     className={cn(
-      "sheet-header flex flex-col space-y-1.5 text-center sm:text-left",
+      "sheet-header flex flex-col space-y-1.5 px-9 text-center sm:px-0 sm:text-left",
       className
     )}
     {...props}

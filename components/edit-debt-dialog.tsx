@@ -23,20 +23,20 @@ export function EditDebtDialog({ debt, children }: EditDebtDialogProps) {
   const { updateDebt } = useFinanceStore();
   const [open, setOpen] = React.useState(false);
   const [name, setName] = React.useState(debt.name);
-  const [balance, setBalance] = React.useState(debt.balance.toString());
-  const [rate, setRate] = React.useState(debt.rate.toString());
-  const [minPayment, setMinPayment] = React.useState(debt.minPayment.toString());
-  const [total, setTotal] = React.useState(debt.total.toString());
+  const [balance, setBalance] = React.useState(String(debt.balance ?? 0));
+  const [rate, setRate] = React.useState(String(debt.rate ?? 0));
+  const [minPayment, setMinPayment] = React.useState(String(debt.minPayment ?? 0));
+  const [total, setTotal] = React.useState(String(debt.total ?? debt.balance ?? 0));
   const [color, setColor] = React.useState(debt.color);
 
   // Sync state when debt changes or dialog opens
   React.useEffect(() => {
     if (open) {
       setName(debt.name);
-      setBalance(debt.balance.toString());
-      setRate(debt.rate.toString());
-      setMinPayment(debt.minPayment.toString());
-      setTotal(debt.total.toString());
+      setBalance(String(debt.balance ?? 0));
+      setRate(String(debt.rate ?? 0));
+      setMinPayment(String(debt.minPayment ?? 0));
+      setTotal(String(debt.total ?? debt.balance ?? 0));
       setColor(debt.color);
     }
   }, [open, debt]);
