@@ -15,7 +15,7 @@ export async function updateSession(request: NextRequest) {
   }});
   const { data: { user } } = await supabase.auth.getUser();
   const path = request.nextUrl.pathname;
-  const publicPath = path === '/' || path.startsWith('/auth') || path === '/manifest.webmanifest';
+  const publicPath = path === '/' || path.startsWith('/auth') || path === '/privacy' || path === '/terms' || path === '/manifest.webmanifest';
   if (!user && !publicPath && !path.startsWith('/api/')) {
     const url = request.nextUrl.clone(); url.pathname = '/auth'; url.searchParams.set('next', path);
     return NextResponse.redirect(url);
