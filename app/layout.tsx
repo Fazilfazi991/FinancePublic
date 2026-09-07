@@ -6,6 +6,7 @@ import { ClientProvider } from "@/components/client-provider";
 import { cn } from "@/lib/utils";
 import { ThemeManager } from "@/components/theme-manager";
 import { APP_URL } from "@/lib/app-url";
+import { ZeroDebtAssistant } from "@/components/assistant/zero-debt-assistant";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -44,9 +45,9 @@ export default function RootLayout({
       <body className={cn(inter.className, "bg-background min-h-screen")}>
         <ThemeManager />
         <ClientProvider>
-          <div className="flex">
+          <div className="flex min-w-0 w-full overflow-x-clip">
             <SidebarNav />
-            <main className="app-main flex-1 min-h-screen relative pb-28 lg:pb-8 pt-[calc(4rem+env(safe-area-inset-top))] lg:pt-0">
+            <main className="app-main relative min-h-screen min-w-0 w-full flex-1 pb-28 pt-[calc(4rem+env(safe-area-inset-top))] lg:pb-8 lg:pt-0">
               <div className="absolute inset-0 bg-[radial-gradient(circle_at_0%_0%,rgba(16,185,129,0.05)_0%,transparent_50%)] pointer-events-none" />
               <div className="absolute inset-0 bg-[radial-gradient(circle_at_100%_100%,rgba(114,211,167,0.06)_0%,transparent_50%)] pointer-events-none" />
               <div className="relative z-10 p-4 lg:p-8 max-w-7xl mx-auto">
@@ -54,6 +55,7 @@ export default function RootLayout({
               </div>
             </main>
           </div>
+          <ZeroDebtAssistant />
           <CommandPalette />
         </ClientProvider>
       </body>

@@ -62,6 +62,7 @@
     -webkit-tap-highlight-color: transparent;
     font-feature-settings: "cv05" 1;
     overscroll-behavior-y: none;
+    overflow-x: clip;
   }
 }
 
@@ -85,7 +86,14 @@
   .tap-target { min-height: 44px; min-width: 44px; }
   .tap-target:not(:disabled) { touch-action: manipulation; transition: transform 120ms ease, opacity 120ms ease; }
   .tap-target:not(:disabled):active { transform: scale(.98); }
-  @media (prefers-reduced-motion: reduce) { .tap-target { transition: none !important; } }
+  .assistant-field { @apply min-h-11 w-full rounded-xl border border-input bg-card px-3 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20; }
+  .assistant-fab { transition: transform 160ms ease, box-shadow 160ms ease, opacity 160ms ease; }
+  .assistant-fab:hover { transform: translateY(-2px); }
+  .assistant-fab:active { transform: scale(.97); }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
+    .tap-target, .assistant-fab { transition: none !important; transform: none !important; }
+  }
   @media (max-width: 639px) {
     .bottom-sheet, .finance-sheet { left: 0 !important; right: 0 !important; bottom: var(--visual-viewport-bottom, 0px) !important; top: auto !important; width: 100% !important; max-width: none !important; max-height: min(92dvh, calc(var(--visual-viewport-height, 100dvh) - .5rem)) !important; transform: none !important; overflow-y: auto !important; overscroll-behavior: contain; scroll-padding-block: 5rem 6rem; border-radius: 1.5rem 1.5rem 0 0 !important; padding-bottom: max(1rem, env(safe-area-inset-bottom)) !important; }
     .sheet-action-footer { position: sticky; bottom: calc(-1rem - env(safe-area-inset-bottom)); z-index: 2; margin-inline: -1.5rem; margin-bottom: calc(-1rem - env(safe-area-inset-bottom)); padding: .75rem 1.5rem max(1rem, env(safe-area-inset-bottom)); background: hsl(var(--background)); border-top: 1px solid hsl(var(--border)); }

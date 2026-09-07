@@ -8,8 +8,8 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Check, Plus } from "lucide-react";
+import { GOAL_CATEGORIES } from "@/lib/goals";
 
-export const GOAL_CATEGORIES = ["Emergency Fund", "Home", "Car", "Travel", "Education", "Family", "Business", "Health", "Other"] as const;
 const emptyForm = {name:"",category:"",customCategory:"",description:"",target:"",saved:"",deadline:""};
 
 export function AddGoalDialog({ children, open: controlledOpen, onOpenChange }: { children?: React.ReactNode; open?: boolean; onOpenChange?: (open:boolean)=>void }) {
