@@ -1,6 +1,6 @@
 const token=process.env.TELEGRAM_BOT_TOKEN,secret=process.env.TELEGRAM_WEBHOOK_SECRET;
 if(!token||!secret)throw new Error('Set TELEGRAM_BOT_TOKEN and TELEGRAM_WEBHOOK_SECRET first.');
-const appUrl=(process.env.NEXT_PUBLIC_APP_URL||'https://zorx.online').replace(/\/$/,'');
+const appUrl=(process.env.NEXT_PUBLIC_APP_URL||'https://zerodebt.life').replace(/\/$/,'');
 const api=async(method,options)=>{const response=await fetch(`https://api.telegram.org/bot${token}/${method}`,options);if(!response.ok)throw new Error(`Telegram rejected ${method}.`);const result=await response.json();if(!result.ok)throw new Error(`Telegram ${method} failed.`);return result.result};
 const health=info=>({url:info.url||'',pending_update_count:info.pending_update_count??0,last_error_message:info.last_error_message||null});
 const bot=await api('getMe');

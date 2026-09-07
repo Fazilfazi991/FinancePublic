@@ -4,6 +4,7 @@ import manifest from "../app/manifest";
 
 const source=(path:string)=>readFileSync(new URL(`../${path}`,import.meta.url),"utf8");
 describe("ZeroDebt public experience",()=>{
+  it("uses the canonical zerodebt.life production origin",()=>{expect(source("lib/app-url.ts")).toContain("https://zerodebt.life");expect(source("lib/app-url.ts")).not.toContain("zorx.online");expect(source("scripts/configure-telegram-webhook.mjs")).toContain("https://zerodebt.life")});
   it("keeps the root landing page public and protects app routes",()=>{const middleware=source("lib/supabase/middleware.ts");expect(middleware).toContain("path === '/'");expect(middleware).toContain("url.pathname = '/auth'")});
   it("connects landing calls to action to authentication",()=>{const landing=source("app/page.tsx");expect(landing).toContain('href="/auth"');expect(landing).toContain("Start Your Debt-Free Journey")});
   it("ships installable standalone metadata without API caching",()=>{const value=manifest();expect(value.name).toBe("ZeroDebt");expect(value.display).toBe("standalone");expect(value.start_url).toBe("/overview");expect(value.scope).toBe("/");expect(value.icons).toEqual(expect.arrayContaining([expect.objectContaining({sizes:"192x192"}),expect.objectContaining({sizes:"512x512",purpose:"maskable"})]));expect(source("app/manifest.ts")).not.toMatch(/serviceWorker|api\/workspace/i)});
