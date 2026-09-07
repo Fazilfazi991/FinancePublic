@@ -2,9 +2,10 @@
 import Link from "next/link";import {usePathname} from "next/navigation";import {useEffect,useState} from "react";
 import {Home,ReceiptText,PieChart,MoreHorizontal,Plus,Wallet,ArrowLeftRight,TrendingDown,TrendingUp,Kanban,Target,Settings,X,CreditCard,Sparkles} from "lucide-react";
 import {cn} from "@/lib/utils";import {AddTransactionDialog} from "@/components/add-transaction-dialog";import {AccountDialog} from "@/components/add-account-dialog";import {AddDebtDialog} from "@/components/add-debt-dialog";import {AddGoalDialog} from "@/components/add-goal-dialog";import {RecordDebtPaymentDialog} from "@/components/record-debt-payment-dialog";import {QuickEntryDialog} from "@/components/quick-entry-dialog";
+import {BrandMark} from "@/components/brand-logo";
 const desktopItems=[["Overview","/overview",Home],["Accounts","/accounts",Wallet],["Ledger","/transactions",ArrowLeftRight],["Debts","/debts",TrendingDown],["Income","/income",TrendingUp],["Pipeline","/pipeline",Kanban],["Budget","/budget",PieChart],["Goals","/goals",Target]] as const,mobileItems=[["Home","/overview",Home],["Activity","/transactions",ReceiptText],["Plan","/plan",PieChart],["More","/more",MoreHorizontal]] as const;
 type TransactionType='income'|'expense'|'transfer';
-function FinanceMark(){return <span className="grid h-9 w-9 place-items-center rounded-xl bg-primary text-primary-foreground"><TrendingDown className="h-5 w-5"/></span>}
+function FinanceMark(){return <BrandMark className="h-9 w-9 rounded-xl"/>}
 export function SidebarNav(){
  const pathname=usePathname(),[sheetOpen,setSheetOpen]=useState(false),[paymentOpen,setPaymentOpen]=useState(false),[quickEntryOpen,setQuickEntryOpen]=useState(false),[transactionType,setTransactionType]=useState<TransactionType|null>(null),[debtOpen,setDebtOpen]=useState(false),[accountOpen,setAccountOpen]=useState(false),[goalOpen,setGoalOpen]=useState(false);
  useEffect(()=>{if(!sheetOpen)return;const close=(event:KeyboardEvent)=>{if(event.key==="Escape")setSheetOpen(false)};window.addEventListener("keydown",close);return()=>window.removeEventListener("keydown",close)},[sheetOpen]);
