@@ -90,6 +90,11 @@
   .assistant-fab { transition: transform 160ms ease, box-shadow 160ms ease, opacity 160ms ease; }
   .assistant-fab:hover { transform: translateY(-2px); }
   .assistant-fab:active { transform: scale(.97); }
+  .app-sidebar-scroll { scrollbar-width: thin; scrollbar-color: hsl(var(--muted-foreground) / .28) transparent; }
+  .app-sidebar-scroll::-webkit-scrollbar { width: 6px; }
+  .app-sidebar-scroll::-webkit-scrollbar-track { background: transparent; }
+  .app-sidebar-scroll::-webkit-scrollbar-thumb { border-radius: 999px; background: hsl(var(--muted-foreground) / .24); }
+  .app-sidebar-scroll:hover::-webkit-scrollbar-thumb { background: hsl(var(--muted-foreground) / .42); }
   @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
     .tap-target, .assistant-fab { transition: none !important; transform: none !important; }
