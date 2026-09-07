@@ -2,7 +2,8 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
-import { Bot, Check, LoaderCircle, MessageCircle, Send, Sparkles, X } from "lucide-react";
+import { Bot, Check, LoaderCircle, Send, Sparkles, X } from "lucide-react";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { parseAssistantInput, requiredAssistantFields } from "@/lib/assistant/parser";
 import { answerInsight } from "@/lib/assistant/insights";
@@ -79,15 +80,15 @@ export function ZeroDebtAssistant() {
   };
 
   return <>
-    <button type="button" onClick={() => setOpen(true)} aria-label="Open Ask ZeroDebt" aria-expanded={open} className="assistant-fab tap-target fixed bottom-[calc(5.25rem+env(safe-area-inset-bottom))] right-4 z-40 flex h-12 items-center gap-2 rounded-full bg-primary px-4 text-sm font-semibold text-primary-foreground shadow-[0_8px_24px_rgba(0,83,56,.28)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 lg:bottom-6 lg:right-6">
-      <MessageCircle className="h-5 w-5"/><span className="hidden min-[390px]:inline">Ask ZeroDebt</span>
-    </button>
+    <motion.button type="button" onClick={() => setOpen(true)} aria-label="Ask ZeroDebt" aria-expanded={open} initial={reduceMotion ? false : { opacity: 0, scale: .9 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: .22, ease: [0.16, 1, 0.3, 1] }} className="assistant-fab tap-target fixed bottom-[calc(5.25rem+env(safe-area-inset-bottom))] right-4 z-40 grid h-14 w-14 place-items-center rounded-full bg-emerald-50 p-1 shadow-[0_10px_28px_rgba(0,83,56,.28)] ring-1 ring-primary/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 dark:bg-emerald-950 lg:bottom-6 lg:right-6">
+      <Image src="/assistant/zerodebt-assistant-avatar.webp" width={48} height={48} alt="" priority className="h-12 w-12 object-contain"/>
+    </motion.button>
     <AnimatePresence>
       {open && <motion.div className="fixed inset-0 z-[70] bg-slate-950/45 lg:flex lg:items-stretch lg:justify-end" initial={reduceMotion ? false : { opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onMouseDown={(event) => { if (event.target === event.currentTarget) setOpen(false); }}>
         <motion.section role="dialog" aria-modal="true" aria-labelledby="assistant-title" className="assistant-sheet safe-bottom absolute inset-x-0 bottom-0 flex max-h-[min(88dvh,760px)] min-h-[560px] flex-col overflow-hidden rounded-t-2xl bg-card shadow-[0_-12px_40px_rgba(15,23,42,.2)] lg:relative lg:h-dvh lg:max-h-none lg:min-h-0 lg:w-[420px] lg:rounded-none" initial={reduceMotion ? false : { y: 32, opacity: .7 }} animate={{ y: 0, opacity: 1 }} exit={{ y: 24, opacity: 0 }} transition={{ duration: .2, ease: [0.16, 1, 0.3, 1] }}>
           <header className="flex items-center gap-3 border-b border-border px-4 py-3">
-            <span className="grid h-10 w-10 place-items-center rounded-xl bg-primary/10 text-primary"><Sparkles className="h-5 w-5"/></span>
-            <div className="min-w-0 flex-1"><h2 id="assistant-title" className="font-semibold">Ask ZeroDebt</h2><p className="text-xs text-muted-foreground">Guidance and quick entry · {aiEnabled ? "AI available" : "works without AI"}</p></div>
+            <span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-emerald-50 p-0.5 ring-1 ring-primary/15 dark:bg-emerald-950"><Image src="/assistant/zerodebt-assistant-avatar.webp" width={40} height={40} alt="" className="h-10 w-10 object-contain"/></span>
+            <div className="min-w-0 flex-1"><h2 id="assistant-title" className="font-semibold">Ask ZeroDebt</h2><p className="text-xs text-muted-foreground">Your financial copilot</p></div>
             <button type="button" onClick={() => setOpen(false)} aria-label="Close assistant" className="tap-target grid place-items-center rounded-full text-muted-foreground hover:bg-secondary"><X className="h-5 w-5"/></button>
           </header>
           <div className="flex-1 space-y-4 overflow-y-auto px-4 py-4" aria-live="polite">
@@ -118,7 +119,7 @@ export function ZeroDebtAssistant() {
 }
 
 function Welcome({ onPrompt }: { onPrompt: (prompt: string) => void }) {
-  return <div><div className="rounded-2xl bg-primary p-5 text-primary-foreground"><Sparkles className="h-6 w-6"/><h3 className="mt-4 text-xl font-semibold">What can I help you move forward?</h3><p className="mt-2 text-sm leading-6 text-primary-foreground/80">Ask about your plan or add something in plain language. I’ll always show a review before saving.</p></div><div className="mt-4 flex flex-wrap gap-2">{prompts.map((prompt) => <button key={prompt} type="button" onClick={() => onPrompt(prompt)} className="tap-target rounded-full border border-border bg-card px-3 py-2 text-left text-xs font-medium hover:bg-secondary active:scale-[.98]">{prompt}</button>)}</div></div>;
+  return <div><div className="rounded-2xl bg-primary p-5 text-primary-foreground"><Sparkles className="h-6 w-6"/><h3 className="mt-4 text-xl font-semibold">What can I help you move forward?</h3><p className="mt-2 text-sm leading-6 text-primary-foreground/80">Hi — I can help you understand your debt, add transactions, create goals, or plan what to do next. I’ll always show a review before saving.</p></div><div className="mt-4 flex flex-wrap gap-2">{prompts.map((prompt) => <button key={prompt} type="button" onClick={() => onPrompt(prompt)} className="tap-target rounded-full border border-border bg-card px-3 py-2 text-left text-xs font-medium hover:bg-secondary active:scale-[.98]">{prompt}</button>)}</div></div>;
 }
 
 function DraftCard({ draft, setDraft, accounts, debts, currency, saving, onConfirm, onCancel }: { draft: AssistantDraft; setDraft: (draft: AssistantDraft) => void; accounts: ReturnType<typeof useFinanceStore.getState>["accounts"]; debts: Debt[]; currency: string; saving: boolean; onConfirm: () => void; onCancel: () => void }) {
