@@ -4,6 +4,12 @@ export const EXPENSE_CATEGORIES = [
   'Education', 'Travel', 'Subscriptions', 'Other',
 ] as const;
 
+export const ESSENTIAL_EXPENSE_CATEGORIES = [
+  'Housing', 'Groceries', 'Transport', 'Bills & Utilities', 'Insurance',
+  'Education', 'Health', 'Childcare', 'Subscriptions', 'Food & Dining',
+  'Other Essentials', 'Other',
+] as const;
+
 export const INCOME_CATEGORIES = ['Salary', 'Freelance', 'Business', 'Bonus', 'Investment', 'Other'] as const;
 
 export const EXPENSE_RULES: ReadonlyArray<[string, readonly string[]]> = [

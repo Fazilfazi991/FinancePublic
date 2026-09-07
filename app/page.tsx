@@ -135,7 +135,7 @@ export default function LandingPage() {
 
       <section className={styles.freeSection}>
         <div className={styles.freeCard}>
-          <div className={styles.freeHeading}><span>ZeroDebt Free</span><h2>Start free. ₹0.</h2><p>Free to start. No credit card required. No bank connection required.</p></div>
+          <div className={styles.freeHeading}><h2>Start free. ₹0.</h2><p>Free to start. No credit card required. No bank connection required.</p></div>
           <ul>
             {["Debt tracking", "Payoff plan", "Monthly payoff power", "Telegram Quick Entry", "Basic Ask ZeroDebt access"].map(item => <li key={item}><Check />{item}</li>)}
           </ul>
