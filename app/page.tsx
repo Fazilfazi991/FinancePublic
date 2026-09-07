@@ -1,13 +1,168 @@
 import Link from "next/link";
-import { ArrowRight, Bot, Check, Gauge, ListChecks, ShieldCheck } from "lucide-react";
-import { BrandLogo, BrandMark } from "@/components/brand-logo";
+import {
+  ArrowDown,
+  ArrowRight,
+  Bot,
+  Check,
+  CheckCircle2,
+  Leaf,
+  MessageCircle,
+  Send,
+  Sparkles,
+  Target,
+  TrendingDown,
+} from "lucide-react";
+import { BrandMark } from "@/components/brand-logo";
+import styles from "./landing.module.css";
 
-const outcomes = ["Freedom Number", "Monthly Payoff Power", "Next Debt to Attack", "Estimated Debt-Free Date"];
-export default function LandingPage(){return <main className="landing-shell -m-4 min-h-dvh overflow-hidden lg:-m-8"><nav className="mx-auto flex max-w-6xl items-center justify-between px-5 py-5 sm:px-8" aria-label="Primary navigation"><Link href="/" aria-label="ZeroDebt home" className="flex items-center gap-2.5 font-bold"><BrandMark className="h-9 w-9"/><span>ZeroDebt</span></Link><Link href="/auth" className="tap-target inline-flex items-center rounded-xl border border-border bg-card px-4 text-sm font-semibold">Sign in</Link></nav>
-<section className="mx-auto grid max-w-6xl items-center gap-12 px-5 pb-20 pt-10 sm:px-8 lg:grid-cols-[1.05fr_.95fr] lg:py-24"><div><BrandLogo className="mb-7 h-[8.5rem] w-[12rem] sm:h-[10rem] sm:w-[14rem]" priority/><h1 className="max-w-3xl text-balance text-5xl font-bold leading-[1.02] tracking-[-.04em] sm:text-6xl lg:text-7xl">A brighter tomorrow starts at zero.</h1><p className="mt-6 max-w-xl text-lg leading-8 text-muted-foreground">See your Freedom Number, know what to pay next, and track every step toward zero debt.</p><div className="mt-8 flex flex-col gap-3 sm:flex-row"><Link href="/auth" className="tap-target inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-6 font-semibold text-primary-foreground">Start Your Debt-Free Journey<ArrowRight className="h-4 w-4"/></Link><a href="#how-it-works" className="tap-target inline-flex items-center justify-center rounded-xl border border-border bg-card px-6 font-semibold">See How It Works</a></div><p className="mt-4 text-sm text-muted-foreground">Free to start. No bank connection required.</p></div><div className="relative mx-auto w-full max-w-md"><div className="absolute -inset-10 -z-10 rounded-full bg-primary/10 blur-3xl"/><div className="rounded-[1.75rem] bg-primary p-6 text-primary-foreground shadow-2xl shadow-emerald-950/20"><p className="text-sm font-semibold text-primary-foreground/75">Your Freedom Number</p><p className="mt-5 text-5xl font-bold tracking-[-.04em]">₹10,68,000</p><p className="mt-2 text-primary-foreground/75">to go</p><div className="mt-9 h-2 overflow-hidden rounded-full bg-black/20"><div className="h-full w-[30%] rounded-full bg-white"/></div><div className="mt-3 flex justify-between text-sm"><span>₹4,52,000 paid</span><span>29.7% cleared</span></div></div><div className="ml-7 mt-4 rounded-2xl bg-card p-5 shadow-xl ring-1 ring-border"><p className="text-sm text-muted-foreground">Next debt to attack</p><div className="mt-2 flex items-end justify-between gap-4"><div><p className="font-bold">Credit Card</p><p className="text-sm text-muted-foreground">18.9% APR</p></div><p className="font-bold">₹58,000</p></div></div></div></section>
-<section id="how-it-works" className="bg-card py-20"><div className="mx-auto max-w-6xl px-5 sm:px-8"><div className="max-w-2xl"><h2 className="text-3xl font-bold tracking-tight sm:text-4xl">A payoff plan built from your real month.</h2><p className="mt-4 text-muted-foreground">Add the big pieces once. ZeroDebt turns them into the next decision you can act on.</p></div><ol className="mt-12 grid gap-8 md:grid-cols-3"><Step n="1" title="Add your debts" text="Start with balances, rates, and minimum payments."/><Step n="2" title="Add monthly cash flow" text="Capture income and essential expenses—not every tiny purchase."/><Step n="3" title="Follow your payoff path" text="See what to attack and how your timeline changes."/></ol><div className="mt-12 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">{outcomes.map(item=><div key={item} className="flex items-center gap-3 rounded-xl bg-secondary p-4 font-semibold"><Check className="h-5 w-5 text-primary"/>{item}</div>)}</div></div></section>
-<section className="mx-auto grid max-w-6xl gap-12 px-5 py-20 sm:px-8 lg:grid-cols-2"><div><h2 className="text-3xl font-bold tracking-tight">Choose a strategy you understand.</h2><p className="mt-4 max-w-xl text-muted-foreground">Keep momentum with Snowball, or reduce expensive interest with Avalanche. ZeroDebt keeps the priority order clear.</p><div className="mt-8 space-y-3"><Strategy icon={Gauge} title="Avalanche" text="Pay highest-interest debt first."/><Strategy icon={ListChecks} title="Snowball" text="Clear smallest balances first."/></div></div><div className="rounded-2xl bg-slate-950 p-6 text-white"><Bot className="h-7 w-7 text-emerald-400"/><h2 className="mt-5 text-2xl font-bold">Track without opening the app.</h2><p className="mt-2 text-slate-300">Spent ₹500 on dinner? Send a quick Telegram message.</p><div className="mt-7 space-y-3"><div className="ml-auto w-fit rounded-2xl rounded-br-sm bg-emerald-500 px-4 py-3 font-medium text-emerald-950">biryani 500</div><div className="max-w-xs rounded-2xl rounded-bl-sm bg-slate-800 p-4"><p className="text-sm text-slate-400">Expense detected</p><p className="mt-1 text-xl font-bold">₹500 · Food & Dining</p><p className="mt-1 text-sm text-slate-300">Ready to confirm</p></div></div></div></section>
-<section className="bg-secondary/70 py-20"><div className="mx-auto max-w-6xl px-5 sm:px-8"><h2 className="max-w-xl text-3xl font-bold tracking-tight">Debt freedom leads. Everything else supports it.</h2><div className="mt-9 grid gap-x-10 gap-y-4 sm:grid-cols-2 lg:grid-cols-3">{["Freedom Number","Debt payoff strategy","Monthly payoff power","Income & expense tracking","Budget","Debt payment history","Telegram Quick Entry","Financial progress"].map(item=><p key={item} className="flex items-center gap-3 font-medium"><ShieldCheck className="h-5 w-5 text-primary"/>{item}</p>)}</div></div></section>
-<section className="mx-auto max-w-4xl px-5 py-24 text-center"><h2 className="text-4xl font-bold tracking-tight">Start moving toward zero debt today.</h2><p className="mx-auto mt-4 max-w-xl text-muted-foreground">Your plan starts with one honest number and one clear next step.</p><Link href="/auth" className="tap-target mt-8 inline-flex items-center gap-2 rounded-xl bg-primary px-7 font-semibold text-primary-foreground">Get Started<ArrowRight className="h-4 w-4"/></Link></section><footer className="border-t border-border px-5 py-8 text-sm text-muted-foreground"><div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 sm:flex-row"><p>© {new Date().getFullYear()} ZeroDebt</p><nav aria-label="Legal" className="flex gap-5"><Link href="/privacy" className="font-medium text-foreground underline-offset-4 hover:underline">Privacy</Link><Link href="/terms" className="font-medium text-foreground underline-offset-4 hover:underline">Terms</Link></nav></div></footer></main>}
-function Step({n,title,text}:{n:string;title:string;text:string}){return <li><span className="grid h-10 w-10 place-items-center rounded-full bg-primary font-bold text-primary-foreground">{n}</span><h3 className="mt-5 text-xl font-bold">{title}</h3><p className="mt-2 leading-7 text-muted-foreground">{text}</p></li>}
-function Strategy({icon:Icon,title,text}:{icon:typeof Gauge;title:string;text:string}){return <div className="flex items-start gap-4 rounded-2xl bg-card p-5 ring-1 ring-border"><span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-primary/10 text-primary"><Icon className="h-5 w-5"/></span><div><h3 className="font-bold">{title}</h3><p className="mt-1 text-sm text-muted-foreground">{text}</p></div></div>}
+const questions = [
+  "How can I clear debt faster?",
+  "What should I focus on this month?",
+  "What happens if I pay ₹5,000 extra?",
+  "Where am I overspending?",
+];
+
+export default function LandingPage() {
+  return (
+    <main className={`${styles.page} landing-shell -m-4 min-h-dvh overflow-hidden lg:-m-8`}>
+      <header className={styles.header}>
+        <nav className={styles.nav} aria-label="Primary navigation">
+          <Link href="/" aria-label="ZeroDebt home" className={styles.brand}>
+            <BrandMark className="h-8 w-8" />
+            <span>ZeroDebt</span>
+          </Link>
+          <div className={styles.desktopNav}>
+            <a href="#how-it-works">How It Works</a>
+            <a href="#features">Features</a>
+          </div>
+          <div className={styles.navActions}>
+            <Link href="/auth" className={styles.signIn}>Sign In</Link>
+            <Link href="/auth" className={styles.navCta}>Start Free <ArrowRight /></Link>
+          </div>
+        </nav>
+      </header>
+
+      <section className={styles.hero}>
+        <div className={styles.heroCopy}>
+          <div className={styles.statusPill}><Leaf /> A quiet step at a time</div>
+          <h1>A brighter tomorrow<br />starts at <em>zero.</em></h1>
+          <p>Track your debt, understand what to pay next, and make steady progress toward financial freedom.</p>
+          <div className={styles.heroActions}>
+            <Link href="/auth" className={styles.primaryCta}>Start for Free <ArrowRight /></Link>
+            <a href="#how-it-works" className={styles.secondaryCta}>See How It Works <ArrowDown /></a>
+          </div>
+          <div className={styles.trustLine}><CheckCircle2 /> Free to start · No credit card · No bank connection</div>
+        </div>
+
+        <div className={styles.heroVisual} aria-label="Illustrative ZeroDebt payoff preview">
+          <span className={styles.milestone}>Next milestone in 18 days <Leaf /></span>
+          <div className={styles.appCard}>
+            <div className={styles.cardTopline}><span>Freedom baseline</span><span>29.7% cleared</span></div>
+            <p className={styles.metricLabel}>Remaining to your freedom</p>
+            <p className={styles.metric}>₹10,68,000</p>
+            <div className={styles.progressTrack}><span /></div>
+            <div className={styles.attackCard}>
+              <div><small>Focal next target · Avalanche</small><strong>HDFC Titanium Card</strong><span>Pay ₹14,000 this month to cut 2 mo. interest.</span></div>
+              <b>₹58,000</b>
+            </div>
+            <Link href="/auth" className={styles.demoButton}>Log payoff progress <ArrowRight /></Link>
+          </div>
+          <span className={styles.monthlyPower}>Monthly payoff power <strong>₹14,500</strong></span>
+        </div>
+      </section>
+
+      <section id="how-it-works" className={styles.pathSection}>
+        <div className={styles.sectionIntro}>
+          <h2>What ZeroDebt helps you do</h2>
+          <p>Progress adds up quietly.</p>
+        </div>
+        <ol className={styles.pathList}>
+          <PathStep title="Know your total debt" tag="Clarity" text="All balances, rates, and obligations organized into one clear, honest number: ₹10,68,000." />
+          <PathStep title="Know what to pay next" tag="Laser focus" text="Forget juggling due dates and rates. ZeroDebt points you directly to the next lead domino." />
+          <PathStep title="Keep moving toward zero" tag="Horizon 2026" text="Watch the percentage tick upward every month and see how your timeline changes." />
+        </ol>
+      </section>
+
+      <section id="features" className={styles.freedomSection}>
+        <div className={styles.freedomCopy}>
+          <h2>Your Freedom Number makes the invisible visible.</h2>
+          <p>One honest number. One calm plan. Every payment redraws the distance between today and zero.</p>
+        </div>
+        <div className={styles.freedomPanel}>
+          <div className={styles.freedomHeader}><span>Freedom Number</span><span><i /> Illustrative plan</span></div>
+          <p>₹10,68,000 <small>to go</small></p>
+          <div className={styles.freedomProgress}><span /></div>
+          <div className={styles.freedomStats}><span><b>29.7%</b> cleared</span><span><b>₹4,52,000</b> paid</span><span><b>₹14,500</b> monthly power</span></div>
+        </div>
+      </section>
+
+      <section className={styles.strategySection}>
+        <div>
+          <h2>Pick a payoff rhythm you can trust.</h2>
+          <p>ZeroDebt keeps the choice concise and the next action clear.</p>
+        </div>
+        <div className={styles.strategyChooser}>
+          <article className={styles.strategyActive}><TrendingDown /><div><h3>Avalanche</h3><p>Highest interest first</p></div><span>Save more</span></article>
+          <article><Target /><div><h3>Snowball</h3><p>Smallest balance first</p></div><span>Build momentum</span></article>
+        </div>
+      </section>
+
+      <section className={styles.telegramSection}>
+        <div className={styles.telegramCopy}>
+          <MessageCircle />
+          <h2>Tracking money should feel this easy.</h2>
+          <p>Track spending without opening ZeroDebt. Just send a natural message when it happens.</p>
+          <Link href="/auth" className={styles.textLink}>Connect Telegram <ArrowRight /></Link>
+        </div>
+        <div className={styles.chatWindow} aria-label="Illustrative Telegram quick entry conversation">
+          <div className={styles.chatHeader}><Send /><span>ZeroDebt Quick Entry</span><small>Demo</small></div>
+          <div className={styles.userBubble}>biryani 500 <time>1:42 PM</time></div>
+          <div className={styles.botBubble}><b><Sparkles /> ZeroDebt</b><p>Logged <strong>₹500</strong> · Food &amp; Dining.</p><span>Monthly payoff power remains on track.</span></div>
+        </div>
+      </section>
+
+      <section className={styles.askSection}>
+        <div className={styles.askCopy}>
+          <span className={styles.botIcon}><Bot /></span>
+          <h2>Ask your money anything.</h2>
+          <p>Ask ZeroDebt is your account-aware financial copilot—grounded in your plan, not generic advice.</p>
+        </div>
+        <div className={styles.questions}>
+          {questions.map((question, index) => <div className={styles.questionChip} key={question} style={{ "--delay": `${index * 90}ms` } as React.CSSProperties}>{question}<ArrowRight /></div>)}
+          <div className={styles.answer}><span><i /> Ask ZeroDebt</span><p>Adding ₹5,000 extra this month could move your payoff date forward while keeping essentials covered.</p><small>Illustrative answer</small></div>
+        </div>
+      </section>
+
+      <section className={styles.freeSection}>
+        <div className={styles.freeCard}>
+          <div className={styles.freeHeading}><span>ZeroDebt Free</span><h2>Start free. ₹0.</h2><p>Free to start. No credit card required. No bank connection required.</p></div>
+          <ul>
+            {["Debt tracking", "Payoff plan", "Monthly payoff power", "Telegram Quick Entry", "Basic Ask ZeroDebt access"].map(item => <li key={item}><Check />{item}</li>)}
+          </ul>
+          <Link href="/auth" className={styles.freeCta}>Start for Free <ArrowRight /></Link>
+          <small>Set up your first plan in a few calm steps.</small>
+        </div>
+      </section>
+
+      <section className={styles.finalCta}>
+        <Leaf />
+        <h2>Less debt.<br />A brighter you.</h2>
+        <p>Your next chapter starts with one clear number.</p>
+        <Link href="/auth" className={styles.primaryCta}>Start for Free <ArrowRight /></Link>
+      </section>
+
+      <footer className={styles.footer}>
+        <Link href="/" className={styles.brand}><BrandMark className="h-7 w-7" /><span>ZeroDebt</span></Link>
+        <p>© {new Date().getFullYear()} ZeroDebt · A calmer way to become debt-free.</p>
+        <nav aria-label="Legal">
+          <Link href="/privacy">Privacy</Link>
+          <Link href="/terms">Terms</Link>
+        </nav>
+      </footer>
+    </main>
+  );
+}
+
+function PathStep({ title, tag, text }: { title: string; tag: string; text: string }) {
+  return <li><span className={styles.pathDot}><Check /></span><div><div className={styles.pathTitle}><h3>{title}</h3><span>{tag}</span></div><p>{text}</p></div></li>;
+}

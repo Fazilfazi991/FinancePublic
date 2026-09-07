@@ -100,5 +100,6 @@
     .finance-sheet > .sheet-header, .bottom-sheet > .sheet-header { position: sticky; top: -1.5rem; z-index: 2; margin: -1.5rem -1.5rem 0; padding: 1.25rem 3.5rem .75rem 1.5rem; background: hsl(var(--background)); border-bottom: 1px solid hsl(var(--border)); }
   }
   .app-main:has(.landing-shell), .app-main:has(.onboarding-shell) { padding-top: 0; padding-bottom: 0; }
+  .app-main:has(.landing-shell) > div.relative { max-width: none; }
   ::selection { background: hsl(var(--primary) / .22); }
 }
