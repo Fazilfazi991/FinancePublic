@@ -13,6 +13,7 @@ import {
   TrendingDown,
 } from "lucide-react";
 import { BrandMark } from "@/components/brand-logo";
+import { FreedomCount, Reveal } from "@/components/landing-motion";
 import styles from "./landing.module.css";
 
 const questions = [
@@ -71,7 +72,8 @@ export default function LandingPage() {
         </div>
       </section>
 
-      <section id="how-it-works" className={styles.pathSection}>
+      <Reveal className={`${styles.pathSection} ${styles.reveal}`} visibleClass={styles.visible}>
+      <section id="how-it-works">
         <div className={styles.sectionIntro}>
           <h2>What ZeroDebt helps you do</h2>
           <p>Progress adds up quietly.</p>
@@ -81,20 +83,21 @@ export default function LandingPage() {
           <PathStep title="Know what to pay next" tag="Laser focus" text="Forget juggling due dates and rates. ZeroDebt points you directly to the next lead domino." />
           <PathStep title="Keep moving toward zero" tag="Horizon 2026" text="Watch the percentage tick upward every month and see how your timeline changes." />
         </ol>
-      </section>
+      </section></Reveal>
 
-      <section id="features" className={styles.freedomSection}>
+      <Reveal className={`${styles.freedomSection} ${styles.reveal}`} visibleClass={styles.visible}>
+      <section id="features" className={styles.freedomContents}>
         <div className={styles.freedomCopy}>
           <h2>Your Freedom Number makes the invisible visible.</h2>
           <p>One honest number. One calm plan. Every payment redraws the distance between today and zero.</p>
         </div>
         <div className={styles.freedomPanel}>
           <div className={styles.freedomHeader}><span>Freedom Number</span><span><i /> Illustrative plan</span></div>
-          <p>₹10,68,000 <small>to go</small></p>
+          <p><FreedomCount value={1068000} /> <small>to go</small></p>
           <div className={styles.freedomProgress}><span /></div>
           <div className={styles.freedomStats}><span><b>29.7%</b> cleared</span><span><b>₹4,52,000</b> paid</span><span><b>₹14,500</b> monthly power</span></div>
         </div>
-      </section>
+      </section></Reveal>
 
       <section className={styles.strategySection}>
         <div>
@@ -107,7 +110,8 @@ export default function LandingPage() {
         </div>
       </section>
 
-      <section className={styles.telegramSection}>
+      <Reveal className={`${styles.telegramSection} ${styles.reveal}`} visibleClass={styles.visible}>
+      <section className={styles.telegramContents}>
         <div className={styles.telegramCopy}>
           <MessageCircle />
           <h2>Tracking money should feel this easy.</h2>
@@ -119,9 +123,10 @@ export default function LandingPage() {
           <div className={styles.userBubble}>biryani 500 <time>1:42 PM</time></div>
           <div className={styles.botBubble}><b><Sparkles /> ZeroDebt</b><p>Logged <strong>₹500</strong> · Food &amp; Dining.</p><span>Monthly payoff power remains on track.</span></div>
         </div>
-      </section>
+      </section></Reveal>
 
-      <section className={styles.askSection}>
+      <Reveal className={`${styles.askSection} ${styles.reveal}`} visibleClass={styles.visible}>
+      <section className={styles.askContents}>
         <div className={styles.askCopy}>
           <span className={styles.botIcon}><Bot /></span>
           <h2>Ask your money anything.</h2>
@@ -131,7 +136,7 @@ export default function LandingPage() {
           {questions.map((question, index) => <div className={styles.questionChip} key={question} style={{ "--delay": `${index * 90}ms` } as React.CSSProperties}>{question}<ArrowRight /></div>)}
           <div className={styles.answer}><span><i /> Ask ZeroDebt</span><p>Adding ₹5,000 extra this month could move your payoff date forward while keeping essentials covered.</p><small>Illustrative answer</small></div>
         </div>
-      </section>
+      </section></Reveal>
 
       <section className={styles.freeSection}>
         <div className={styles.freeCard}>
@@ -144,12 +149,13 @@ export default function LandingPage() {
         </div>
       </section>
 
-      <section className={styles.finalCta}>
+      <Reveal className={`${styles.finalCta} ${styles.reveal}`} visibleClass={styles.visible}>
+      <section>
         <Leaf />
         <h2>Less debt.<br />A brighter you.</h2>
         <p>Your next chapter starts with one clear number.</p>
         <Link href="/auth" className={styles.primaryCta}>Start for Free <ArrowRight /></Link>
-      </section>
+      </section></Reveal>
 
       <footer className={styles.footer}>
         <Link href="/" className={styles.brand}><BrandMark className="h-7 w-7" /><span>ZeroDebt</span></Link>
