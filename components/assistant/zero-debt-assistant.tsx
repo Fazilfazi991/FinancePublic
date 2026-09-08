@@ -12,6 +12,7 @@ import { GOAL_CATEGORIES } from "@/lib/goals";
 import { EXPENSE_CATEGORIES, INCOME_CATEGORIES } from "@/lib/quick-entry/rules";
 import { useFinanceStore, type Debt, type Goal, type Transaction } from "@/lib/store";
 import { formatCurrency } from "@/lib/utils";
+import { trackEventSafely } from "@/lib/analytics/client";
 
 type Message = { id: string; role: "user" | "assistant"; text: string };
 const hiddenRoutes = ["/", "/auth", "/privacy", "/terms", "/onboarding"];
@@ -47,6 +48,7 @@ export function ZeroDebtAssistant() {
     const clean = raw.trim();
     if (!clean || thinking || saving) return;
     setError(""); setDraft(null); addMessage("user", clean); setInput("");
+    trackEventSafely("ai_advisor_message_sent", { conversation_state: messages.length ? "continuing" : "new" });
     const parsed = parseAssistantInput(clean, { defaultAccountId: defaultAccount?.id, debts: state.debts });
     if (parsed.type === "action") { setDraft(parsed.draft); addMessage("assistant", parsed.draft.needs.length ? `I started a ${labels[parsed.draft.kind].toLowerCase()} draft. Add the missing details, then review and confirm.` : `Here’s the ${labels[parsed.draft.kind].toLowerCase()} draft. Nothing will be saved until you confirm.`); return; }
     if (parsed.type === "insight") {
@@ -80,7 +82,7 @@ export function ZeroDebtAssistant() {
   };
 
   return <>
-    <motion.button type="button" onClick={() => setOpen(true)} aria-label="Ask ZeroDebt" aria-expanded={open} initial={reduceMotion ? false : { opacity: 0, scale: .9 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: .22, ease: [0.16, 1, 0.3, 1] }} className="assistant-fab tap-target fixed bottom-[calc(5.25rem+env(safe-area-inset-bottom))] right-4 z-40 grid h-14 w-14 place-items-center rounded-full bg-emerald-50 p-1 shadow-[0_10px_28px_rgba(0,83,56,.28)] ring-1 ring-primary/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 dark:bg-emerald-950 lg:bottom-6 lg:right-6">
+    <motion.button type="button" onClick={() => { setOpen(true); trackEventSafely("ai_advisor_opened", { placement: "floating_button" }); }} aria-label="Ask ZeroDebt" aria-expanded={open} initial={reduceMotion ? false : { opacity: 0, scale: .9 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: .22, ease: [0.16, 1, 0.3, 1] }} className="assistant-fab tap-target fixed bottom-[calc(5.25rem+env(safe-area-inset-bottom))] right-4 z-40 grid h-14 w-14 place-items-center rounded-full bg-emerald-50 p-1 shadow-[0_10px_28px_rgba(0,83,56,.28)] ring-1 ring-primary/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 dark:bg-emerald-950 lg:bottom-6 lg:right-6">
       <Image src="/assistant/zerodebt-assistant-avatar.webp" width={48} height={48} alt="" priority className="h-12 w-12 object-contain"/>
     </motion.button>
     <AnimatePresence>

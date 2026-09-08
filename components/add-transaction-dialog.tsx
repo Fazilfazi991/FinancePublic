@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Plus } from "lucide-react";
+import { trackEventSafely } from "@/lib/analytics/client";
 
 const EXPENSE_CATEGORIES = [
   { value: "Housing", label: "🏠 Housing" },
@@ -125,6 +126,7 @@ export function AddTransactionDialog({
     };
 
     addTransaction(txn);
+    trackEventSafely("transaction_created", { transaction_type: type, source: "dialog" });
 
     // If Debt Payment → reduce debt balance
     if (category === 'Debt Payment' && linkedDebtId) {
@@ -132,6 +134,7 @@ export function AddTransactionDialog({
       if (debt) {
         const newBalance = Math.max(0, debt.balance - parsedAmount);
         updateDebt(linkedDebtId, { balance: newBalance });
+        trackEventSafely("debt_payment_added", { source: "transaction_dialog" });
       }
     }
 
@@ -140,6 +143,7 @@ export function AddTransactionDialog({
       const goal = goals.find(g => g.id === linkedGoalId);
       if (goal) {
         updateGoal(linkedGoalId, { saved: goal.saved + parsedAmount });
+        trackEventSafely("goal_contribution_added", { source: "transaction_dialog" });
       }
     }
 

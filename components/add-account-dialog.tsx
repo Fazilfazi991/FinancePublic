@@ -14,6 +14,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Plus } from "lucide-react";
+import { trackEventSafely } from "@/lib/analytics/client";
 
 interface AccountDialogProps {
   children?: React.ReactNode;
@@ -73,6 +74,7 @@ export function AccountDialog({ children, account, open: controlledOpen, onOpenC
         createdAt: new Date().toISOString(),
         isDefault,
       });
+      trackEventSafely("account_created", { account_type: type });
     }
 
     setOpen(false);
