@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { useFinanceStore } from "@/lib/store";
+import { useFinanceStore, type Transaction } from "@/lib/store";
 import { 
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter
 } from "@/components/ui/dialog";
@@ -38,7 +38,9 @@ const INCOME_CATEGORIES = [
 interface AddTransactionDialogProps {
   children?: React.ReactNode;
   initialType?: 'income' | 'expense' | 'transfer';
+  initialAccountId?: string;
   initialStreamId?: string;
+  transaction?: Transaction;
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
 }
@@ -46,11 +48,13 @@ interface AddTransactionDialogProps {
 export function AddTransactionDialog({ 
   children, 
   initialType = 'expense',
+  initialAccountId = "",
   initialStreamId = "",
+  transaction,
   open: controlledOpen,
   onOpenChange,
 }: AddTransactionDialogProps) {
-  const { accounts, incomes, debts, goals, addTransaction, updateDebt, updateGoal, settings } = useFinanceStore();
+  const { accounts, incomes, debts, goals, addTransaction, updateTransaction, updateDebt, updateGoal, settings } = useFinanceStore();
   const [internalOpen, setInternalOpen] = React.useState(false);
   const open = controlledOpen ?? internalOpen;
   const setOpen = onOpenChange ?? setInternalOpen;
@@ -65,15 +69,28 @@ export function AddTransactionDialog({
   const [currency, setCurrency] = React.useState('INR');
   const [description, setDescription] = React.useState("");
   const [date, setDate] = React.useState(new Date().toISOString().split('T')[0]);
+  const [pending, setPending] = React.useState(false);
+  const [error, setError] = React.useState("");
 
   // Sync with props when dialog opens
   React.useEffect(() => {
     if (open) {
-      setType(initialType);
+      setType(transaction?.type ?? initialType);
       setIncomeStreamId(initialStreamId);
-      setCategory("");
+      setCategory(transaction?.category ?? "");
       setLinkedDebtId("");
       setLinkedGoalId("");
+      setToAccountId(transaction?.toAccountId ?? "");
+      setError("");
+      setAmount(transaction ? String(transaction.amount) : "");
+      setDescription(transaction?.description ?? "");
+      setDate(transaction?.date ?? new Date().toISOString().split('T')[0]);
+      if (transaction) {
+        setAccountId(transaction.accountId);
+        setIncomeStreamId(transaction.incomeStreamId ?? "");
+        setCurrency(transaction.currency);
+        return;
+      }
       
       if (initialStreamId) {
         const stream = incomes.find(s => s.id === initialStreamId);
@@ -86,6 +103,10 @@ export function AddTransactionDialog({
           setCategory(stream.type === 'Business' ? 'Business' : stream.type);
           setDescription(`Income from ${stream.name}`);
         }
+      } else if (initialAccountId && accounts.some(account => account.id === initialAccountId)) {
+        setAccountId(initialAccountId);
+        const account = accounts.find(item => item.id === initialAccountId);
+        if (account) setCurrency(account.currency);
       } else {
         const defaultAcc = accounts.find(a => a.isDefault) || accounts[0];
         if (defaultAcc) {
@@ -95,7 +116,7 @@ export function AddTransactionDialog({
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [open, initialType, initialStreamId]);
+  }, [open, initialType, initialStreamId, initialAccountId, transaction, accounts, incomes]);
 
   // Update currency when account changes
   React.useEffect(() => {
@@ -103,16 +124,19 @@ export function AddTransactionDialog({
     if (acc) setCurrency(acc.currency);
   }, [accountId, accounts]);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!amount || !accountId) return;
-    if (type !== 'transfer' && !category) return;
-
     const parsedAmount = parseFloat(amount);
+    if (pending) return;
+    if (!Number.isFinite(parsedAmount) || parsedAmount <= 0) { setError("Enter an amount greater than zero."); return; }
+    if (!accountId) { setError("Choose an account."); return; }
+    if (type !== 'transfer' && !category) { setError("Choose a category."); return; }
+    if (type === 'transfer' && !toAccountId) { setError("Choose a destination account."); return; }
+    if (type === 'transfer' && accountId === toAccountId) { setError("From and To accounts must be different."); return; }
 
     // Build the transaction
     const txn = {
-      id: crypto.randomUUID(),
+      id: transaction?.id ?? crypto.randomUUID(),
       type,
       amount: parsedAmount,
       accountId,
@@ -122,14 +146,19 @@ export function AddTransactionDialog({
       description,
       date,
       currency,
-      createdAt: new Date().toISOString()
+      createdAt: transaction?.createdAt ?? new Date().toISOString(),
+      notes: transaction?.notes ?? "",
     };
 
-    addTransaction(txn);
-    trackEventSafely("transaction_created", { transaction_type: type, source: "dialog" });
+    setPending(true);
+    setError("");
+    try {
+      if (transaction) await updateTransaction(transaction.id, txn);
+      else await addTransaction(txn);
+      if (!transaction) trackEventSafely("transaction_created", { transaction_type: type, source: "dialog" });
 
     // If Debt Payment → reduce debt balance
-    if (category === 'Debt Payment' && linkedDebtId) {
+      if (!transaction && category === 'Debt Payment' && linkedDebtId) {
       const debt = debts.find(d => d.id === linkedDebtId);
       if (debt) {
         const newBalance = Math.max(0, debt.balance - parsedAmount);
@@ -139,7 +168,7 @@ export function AddTransactionDialog({
     }
 
     // If Savings / Goal → increase goal saved
-    if (category === 'Savings / Goal' && linkedGoalId) {
+      if (!transaction && category === 'Savings / Goal' && linkedGoalId) {
       const goal = goals.find(g => g.id === linkedGoalId);
       if (goal) {
         updateGoal(linkedGoalId, { saved: goal.saved + parsedAmount });
@@ -148,12 +177,17 @@ export function AddTransactionDialog({
     }
 
     // Reset and close
-    setOpen(false);
-    setAmount("");
-    setDescription("");
-    setCategory("");
-    setLinkedDebtId("");
-    setLinkedGoalId("");
+      setOpen(false);
+      setAmount("");
+      setDescription("");
+      setCategory("");
+      setLinkedDebtId("");
+      setLinkedGoalId("");
+    } catch (caught) {
+      setError(caught instanceof Error ? caught.message : "The transaction could not be saved.");
+    } finally {
+      setPending(false);
+    }
   };
 
   const activeIncomes = incomes.filter(s => s.status === 'active');
@@ -169,7 +203,7 @@ export function AddTransactionDialog({
       </DialogTrigger>}
       <DialogContent className="finance-sheet max-h-[92dvh] overflow-y-auto border-border bg-card sm:max-w-[460px] sm:rounded-2xl max-sm:top-auto max-sm:bottom-0 max-sm:translate-y-0 max-sm:rounded-b-none max-sm:rounded-t-3xl [&_input]:text-base">
         <DialogHeader>
-          <DialogTitle className="text-xl font-bold">New Transaction</DialogTitle>
+          <DialogTitle className="text-xl font-bold">{transaction ? 'Edit Transaction' : 'New Transaction'}</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4 py-4">
           {/* Type tabs */}
@@ -361,13 +395,14 @@ export function AddTransactionDialog({
             />
           </div>
 
+          {error && <p role="alert" className="text-sm text-destructive">{error}</p>}
           <DialogFooter className="sheet-action-footer pt-4">
-            <Button type="submit" className={`w-full font-bold py-6 rounded-2xl shadow-lg hover:scale-[1.02] transition-all ${
+            <Button type="submit" disabled={pending} className={`w-full font-bold py-6 rounded-2xl shadow-lg hover:scale-[1.02] transition-all ${
               type === 'expense' ? 'bg-destructive text-white shadow-destructive/20' :
               type === 'income' ? 'bg-primary text-primary-foreground shadow-primary/20' :
               'bg-blue-500 text-white shadow-blue-500/20'
             }`}>
-              {type === 'expense' ? '💸 Save Expense' : type === 'income' ? '💰 Save Income' : '🔄 Save Transfer'}
+              {pending ? 'Saving…' : transaction ? 'Save Changes' : type === 'expense' ? '💸 Save Expense' : type === 'income' ? '💰 Save Income' : '🔄 Save Transfer'}
             </Button>
           </DialogFooter>
         </form>

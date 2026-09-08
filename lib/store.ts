@@ -137,10 +137,10 @@ interface FinanceState {
   setRates: (rates: FinanceState['rates']) => void;
 
   // CRUD actions — update local state + call API
-  addTransaction: (txn: Transaction) => void;
+  addTransaction: (txn: Transaction) => Promise<Transaction>;
   recordDebtPayment: (debtId: string, accountId: string, amount: number, date: string, notes?: string) => Promise<void>;
-  deleteTransaction: (id: string) => void;
-  updateTransaction: (id: string, txn: Partial<Transaction>) => void;
+  deleteTransaction: (id: string) => Promise<void>;
+  updateTransaction: (id: string, txn: Transaction) => Promise<Transaction>;
 
   addAccount: (acc: Account) => void;
   deleteAccount: (id: string) => void;
@@ -229,9 +229,30 @@ export const useFinanceStore = create<FinanceState>()(
     setRates: (rates) => set({ rates }),
 
     // Transactions
-    addTransaction: (txn) => {
-      set((state) => ({ transactions: [txn, ...state.transactions] }));
-      api.post('/api/transactions', txn);
+    addTransaction: async (txn) => {
+      const response = await fetch('/api/transactions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ...txn, idempotencyKey: txn.id }),
+      });
+      const result = await response.json();
+      if (!response.ok) throw new Error(result?.error?.message || 'The transaction could not be saved.');
+      const saved: Transaction = {
+        id: result.id,
+        type: result.type,
+        amount: Number(result.amount),
+        accountId: result.account_id,
+        toAccountId: result.to_account_id ?? undefined,
+        category: result.category,
+        description: result.description,
+        date: result.transaction_date,
+        currency: result.currency,
+        createdAt: result.created_at,
+        incomeStreamId: result.income_stream_id ?? undefined,
+        notes: result.notes ?? '',
+      };
+      set((state) => ({ transactions: [saved, ...state.transactions.filter(item => item.id !== saved.id)] }));
+      return saved;
     },
     recordDebtPayment: async (debtId, accountId, amount, date, notes = '') => {
       const state = get();
@@ -246,12 +267,33 @@ export const useFinanceStore = create<FinanceState>()(
       const txn:Transaction={id:t.id,type:t.type,amount:Number(t.amount),accountId:t.account_id,category:t.category,description:t.description,date:t.transaction_date,currency:t.currency,createdAt:t.created_at,notes:t.notes??''};
       set(current=>({transactions:[txn,...current.transactions],debts:current.debts.map(item=>item.id===debtId?updatedDebt:item)}));
     },
-    deleteTransaction: (id) => {
-      set((state) => ({ transactions: state.transactions.filter(t => t.id !== id) }));
-      if (!isDemoId(id)) api.del(`/api/transactions/${id}`);
+    deleteTransaction: async (id) => {
+      const response = await fetch(`/api/transactions/${id}`, { method: 'DELETE' });
+      const result = await response.json();
+      if (!response.ok) throw new Error(result?.error?.message || 'The transaction could not be deleted.');
+      set((state) => ({
+        transactions: state.transactions.filter(t => t.id !== id),
+        debts: result.debt ? state.debts.map(debt => debt.id === result.debt.id ? {
+          ...debt, balance: Number(result.debt.balance), total: Number(result.debt.original_amount),
+        } : debt) : state.debts,
+      }));
     },
-    updateTransaction: (id, updatedTxn) => {
-      set((state) => ({ transactions: state.transactions.map(t => t.id === id ? { ...t, ...updatedTxn } : t) }));
+    updateTransaction: async (id, txn) => {
+      const response = await fetch(`/api/transactions/${id}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(txn) });
+      const result = await response.json();
+      if (!response.ok) throw new Error(result?.error?.message || 'The transaction could not be updated.');
+      const row = result.transaction;
+      const saved: Transaction = { id: row.id, type: row.type, amount: Number(row.amount), accountId: row.account_id,
+        toAccountId: row.to_account_id ?? undefined, category: row.category, description: row.description,
+        date: row.transaction_date, currency: row.currency, createdAt: row.created_at,
+        incomeStreamId: row.income_stream_id ?? undefined, notes: row.notes ?? '' };
+      set((state) => ({
+        transactions: state.transactions.map(item => item.id === id ? saved : item),
+        debts: result.debt ? state.debts.map(debt => debt.id === result.debt.id ? {
+          ...debt, balance: Number(result.debt.balance), total: Number(result.debt.original_amount),
+        } : debt) : state.debts,
+      }));
+      return saved;
     },
 
     // Accounts

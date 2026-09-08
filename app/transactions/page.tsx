@@ -1,15 +1,16 @@
 "use client";
 import { useMemo, useState } from "react";
-import { ChevronLeft, ChevronRight, Search, SlidersHorizontal, ArrowDownLeft, ArrowUpRight, ArrowLeftRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, Search, SlidersHorizontal } from "lucide-react";
 import { useFinanceStore, type Transaction } from "@/lib/store";
-import { cn, formatCurrency } from "@/lib/utils";
+import { cn } from "@/lib/utils";
 import { AddTransactionDialog } from "@/components/add-transaction-dialog";
+import { TransactionRow } from "@/components/transaction-actions";
 
 type Filter = "all" | Transaction["type"];
 const tabs: Array<[string, Filter]> = [["All", "all"], ["Income", "income"], ["Expenses", "expense"], ["Transfers", "transfer"]];
 
 export default function TransactionsPage() {
-  const { transactions, accounts, settings } = useFinanceStore();
+  const { transactions, accounts } = useFinanceStore();
   const [monthOffset, setMonthOffset] = useState(0), [filter, setFilter] = useState<Filter>("all"), [searchOpen, setSearchOpen] = useState(false), [search, setSearch] = useState("");
   const selectedMonth = new Date(); selectedMonth.setDate(1); selectedMonth.setMonth(selectedMonth.getMonth() + monthOffset);
   const month = selectedMonth.getMonth(), year = selectedMonth.getFullYear();
@@ -21,7 +22,7 @@ export default function TransactionsPage() {
     <div className="flex items-center justify-between rounded-2xl bg-card px-2 py-1 shadow-sm ring-1 ring-border"><button aria-label="Previous month" onClick={()=>setMonthOffset(v=>v-1)} className="tap-target grid place-items-center rounded-xl"><ChevronLeft className="h-5 w-5"/></button><p className="font-semibold">{selectedMonth.toLocaleDateString(undefined,{month:"long",year:"numeric"})}</p><button aria-label="Next month" onClick={()=>setMonthOffset(v=>v+1)} disabled={monthOffset>=0} className="tap-target grid place-items-center rounded-xl disabled:opacity-30"><ChevronRight className="h-5 w-5"/></button></div>
     {searchOpen&&<div className="relative"><Search className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"/><input autoFocus value={search} onChange={e=>setSearch(e.target.value)} placeholder="Search activity" className="tap-target w-full rounded-2xl border border-border bg-card pl-11 pr-4 outline-none focus:ring-2 focus:ring-primary/30"/></div>}
     <div className="-mx-1 flex gap-2 overflow-x-auto px-1 pb-1" role="tablist" aria-label="Transaction type">{tabs.map(([label,value])=><button key={value} role="tab" aria-selected={filter===value} onClick={()=>setFilter(value)} className={cn("tap-target shrink-0 rounded-full px-4 text-sm font-semibold",filter===value?"bg-primary text-primary-foreground":"bg-secondary text-secondary-foreground")}>{label}</button>)}</div>
-    {Object.keys(groups).length?<div className="space-y-6">{Object.entries(groups).map(([date,items])=><section key={date}><h2 className="mb-2 px-1 text-xs font-semibold uppercase tracking-wider text-muted-foreground">{dateLabel(date)}</h2><div className="mobile-card divide-y divide-border overflow-hidden">{items.map(t=>{const account=accounts.find(a=>a.id===t.accountId);const Icon=t.type==="income"?ArrowDownLeft:t.type==="transfer"?ArrowLeftRight:ArrowUpRight;return <div key={t.id} className="flex min-h-[76px] items-center gap-3 px-4"><span className={cn("grid h-11 w-11 shrink-0 place-items-center rounded-xl",t.type==="income"?"bg-emerald-500/10 text-emerald-600":t.type==="transfer"?"bg-sky-500/10 text-sky-500":"bg-secondary")}><Icon className="h-5 w-5"/></span><div className="min-w-0 flex-1"><p className="truncate font-semibold">{t.description||t.category}</p><p className="truncate text-xs text-muted-foreground">{t.category}{account?` · ${account.name}`:""}</p></div><p className={cn("tabular whitespace-nowrap text-sm font-semibold",t.type==="income"?"text-emerald-600":t.type==="transfer"?"text-sky-500":"text-foreground")}>{t.type==="income"?"+":t.type==="expense"?"−":""}{formatCurrency(t.amount,t.currency||settings.currency)}</p></div>})}</div></section>)}</div>:<section className="mobile-card p-8 text-center"><p className="font-semibold">No activity this month</p><p className="mt-1 text-sm text-muted-foreground">Try another month or add a transaction.</p><AddTransactionDialog><button className="mt-4 min-h-11 rounded-xl bg-primary px-4 font-semibold text-primary-foreground">Add transaction</button></AddTransactionDialog></section>}
+    {Object.keys(groups).length?<div className="space-y-6">{Object.entries(groups).map(([date,items])=><section key={date}><h2 className="mb-2 px-1 text-xs font-semibold uppercase tracking-wider text-muted-foreground">{dateLabel(date)}</h2><div className="mobile-card divide-y divide-border overflow-hidden">{items.map(t=><TransactionRow key={t.id} transaction={t}/>)}</div></section>)}</div>:<section className="mobile-card p-8 text-center"><p className="font-semibold">No activity this month</p><p className="mt-1 text-sm text-muted-foreground">Try another month or add a transaction.</p><AddTransactionDialog><button className="mt-4 min-h-11 rounded-xl bg-primary px-4 font-semibold text-primary-foreground">Add transaction</button></AddTransactionDialog></section>}
   </main>;
 }
 
