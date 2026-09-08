@@ -7,6 +7,7 @@ import { cn } from "@/lib/utils";
 import { ThemeManager } from "@/components/theme-manager";
 import { APP_URL } from "@/lib/app-url";
 import { ZeroDebtAssistant } from "@/components/assistant/zero-debt-assistant";
+import { AnalyticsConsent } from "@/components/analytics-consent";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -44,6 +45,7 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body className={cn(inter.className, "bg-background min-h-screen")}>
         <ThemeManager />
+        <AnalyticsConsent measurementId={process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID} required={process.env.NEXT_PUBLIC_ANALYTICS_CONSENT_REQUIRED === "true"} />
         <ClientProvider>
           <div className="flex min-w-0 w-full overflow-x-clip">
             <SidebarNav />

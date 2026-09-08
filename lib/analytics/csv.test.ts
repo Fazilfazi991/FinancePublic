@@ -1,0 +1,1 @@
+import{describe,expect,it}from'vitest';import{csv,csvCell}from'./csv';describe('CSV safety',()=>{it('neutralizes spreadsheet formulas',()=>expect(csvCell('=IMPORTXML("x")')).toContain("'=IMPORTXML"));it('serializes filtered rows',()=>expect(csv(['date','count'],[['2026-09-07',3]])).toContain('"2026-09-07","3"'))});

@@ -1,0 +1,2 @@
+import { NextResponse } from 'next/server';import { requireAdminApi } from '@/lib/admin-auth';import { getAnalyticsReport } from '@/lib/admin-data';
+export async function GET(request:Request){const auth=await requireAdminApi();if('response'in auth)return auth.response;try{const p=Object.fromEntries(new URL(request.url).searchParams);return NextResponse.json(await getAnalyticsReport(auth.db,p),{headers:{'Cache-Control':'private, max-age=60'}})}catch{return NextResponse.json({error:{message:'Unable to load analytics'}},{status:500})}}

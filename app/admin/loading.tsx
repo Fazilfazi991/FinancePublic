@@ -1,0 +1,1 @@
+export default function Loading(){return <div aria-label="Loading admin dashboard" className="space-y-6 animate-pulse"><div className="h-16 w-72 rounded-xl bg-secondary"/><div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">{Array.from({length:12},(_,i)=><div key={i} className="h-32 rounded-2xl bg-secondary"/>)}</div><div className="h-72 rounded-2xl bg-secondary"/></div>}
