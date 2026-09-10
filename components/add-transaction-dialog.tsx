@@ -75,7 +75,7 @@ export function AddTransactionDialog({
   // Sync with props when dialog opens
   React.useEffect(() => {
     if (open) {
-      setType(transaction?.type ?? initialType);
+      setType(transaction && ['income','expense','transfer'].includes(transaction.type) ? transaction.type as 'income'|'expense'|'transfer' : initialType);
       setIncomeStreamId(initialStreamId);
       setCategory(transaction?.category ?? "");
       setLinkedDebtId("");

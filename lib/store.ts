@@ -62,6 +62,7 @@ export interface Goal {
 }
 
 export interface Account {
+  isDemo?: boolean;
   id: string;
   name: string;
   institution: string;
@@ -78,7 +79,7 @@ export interface Account {
 
 export interface Transaction {
   id: string;
-  type: 'income' | 'expense' | 'transfer';
+  type: 'income' | 'expense' | 'transfer' | 'receivable_out' | 'receivable_repayment';
   amount: number;
   accountId: string;
   toAccountId?: string;

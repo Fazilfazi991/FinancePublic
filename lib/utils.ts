@@ -51,8 +51,8 @@ export const getAccountBalance = (accId: string, accounts: any[], transactions: 
       }
     }
 
-    if (t.type === 'income' && t.accountId === accId) balance += amt;
-    else if (t.type === 'expense' && t.accountId === accId) balance -= amt;
+    if ((t.type === 'income' || t.type === 'receivable_repayment') && t.accountId === accId) balance += amt;
+    else if ((t.type === 'expense' || t.type === 'receivable_out') && t.accountId === accId) balance -= amt;
     else if (t.type === 'transfer') {
       if (t.accountId === accId) balance -= amt;
       if (t.toAccountId === accId) balance += amt;

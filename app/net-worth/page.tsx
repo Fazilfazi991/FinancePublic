@@ -23,7 +23,11 @@ export default function NetWorthPage() {
     return usdAmount * (rates.rates[settings.currency] || 1);
   };
 
-  const totalAssets = accounts.reduce((sum, a) => {
+  // Lending exchanges cash for an asset; repayment exchanges that asset for cash.
+  const moneyToReceive = transactions.reduce((sum, t) => sum +
+    (t.type === 'receivable_out' ? convert(Number(t.amount), t.currency) :
+      t.type === 'receivable_repayment' ? -convert(Number(t.amount), t.currency) : 0), 0);
+  const totalAssets = moneyToReceive + accounts.reduce((sum, a) => {
     const balance = getAccountBalance(a.id, accounts, transactions, settings);
     return sum + convert(balance, a.currency);
   }, 0);
@@ -34,7 +38,7 @@ export default function NetWorthPage() {
     <div className="space-y-8">
       <div>
         <h1 className="text-4xl font-bold tracking-tight">Net Worth</h1>
-        <p className="text-muted-foreground mt-1">A comprehensive view of your total wealth.</p>
+        <p className="text-muted-foreground mt-1">A comprehensive view of your total wealth, including outstanding Money to Receive.</p>
       </div>
 
       <div className="glass p-10 rounded-[3rem] bg-primary/5 border-primary/20 relative overflow-hidden">
